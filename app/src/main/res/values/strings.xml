@@ -1,0 +1,46 @@
+<resources>
+    <string name="app_name">PTITFoodAdmin</string>
+    <string name="name_shop">PTIT FOOD</string>
+    <string name="login_admin">Đăng nhập tài khoản Admin</string>
+    <string name="order">Đơn hàng</string>
+    <string name="complete_order">Đơn hàng\nhoàn tất</string>
+    <string name="total_price">Tổng tiền</string>
+    <string name="add_items">Thêm món</string>
+    <string name="all_items_menu">Hiển thị</string>
+    <string name="order_management">Quản lý đơn hàng</string>
+    <string name="user_plus_01">Thêm user</string>
+    <string name="user_management">Quản lý User Admin</string>
+    <string name="information">Thông tin</string>
+    <string name="log_out">Đăng xuất</string>
+    <string name="dish_name">Tên món</string>
+    <string name="price">Giá tiền</string>
+    <string name="photo">Hình ảnh</string>
+    <string name="decribe">Mô tả</string>
+    <string name="eat_more">Ăn thêm</string>
+    <string name="cha_lua">Chả lụa</string>
+    <string name="thit_bo">Thịt bò</string>
+    <string name="xuc_xich">Xúc xích</string>
+    <string name="hamburger">Hamburger</string>
+    <string name="pizza">Pizza</string>
+    <string name="ga_kfc">Gà KFC</string>
+    <string name="price_10">10.000đ</string>
+    <string name="price_15">15.000đ</string>
+    <string name="price_1">Giá:</string>
+    <string name="revenue">Doanh thu</string>
+    <string name="chart">Biểu đồ</string>
+    <string name="revenue_by_day">Doanh thu theo ngày</string>
+    <string name="best_seller">Món ăn bán chạy</string>
+    <string name="quantity">Số lượng</string>
+    <string name="eat_more1">Ăn thêm:</string>
+    <string name="viewDetail">Xem chi tiết</string>
+    <string name="order_detail">Chi tiết đơn hàng</string>
+    <string name="quanLyDonHang">Quản lý đơn hàng</string>
+    <string name="hoanTat">Hoàn tất</string>
+    <string name="huyDon">Hủy đơn</string>
+    <string name="text_btn_detail">Xem chi tiết</string>
+    <string name="edit_profile">Chỉnh sửa thông tin</string>
+    <string name="text"></string>
+    <string name="add_login_admin">Tạo tài khoản Admin</string>
+    <string name="quanLyTaiKhoan">Quản lý tài khoản</string>
+
+</resources>

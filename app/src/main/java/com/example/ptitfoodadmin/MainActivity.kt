@@ -42,8 +42,8 @@ class MainActivity : AppCompatActivity() {
         }
         val viewOrder = findViewById<ConstraintLayout>(R.id.btn_order)
         viewOrder.setOnClickListener{
-            val dataHandler = DataHandler()
-            dataHandler.addFirebaseData()
+           /* val dataHandler = DataHandler()
+            dataHandler.addFirebaseData()*/
             val intent = Intent(this, OrderActivity::class.java)
             startActivity(intent)
         }

@@ -1,3 +1,9 @@
 package com.example.ptitfoodadmin.model
 
-class OrderItem(val name: String, val status: String, val id: Int)
+data class OrderItem(
+    val name: String,
+    val status: Int,
+    val id: Int,
+    val totalPrice: Int,
+    val foodList: Map<String, FoodItem>
+)

@@ -25,18 +25,19 @@ class OrderAdapter(private val orderList: List<OrderItem>) :
     override fun onBindViewHolder(holder: OrderViewHolder, position: Int) {
         val currentItem = orderList[position]
         holder.textNameOrder.text = currentItem.name
-        holder.textStatusOrder.text = currentItem.status
-        if (currentItem.status=="0"){
-            holder.textNameOrder.text = "Đang xử lý"
+        holder.textStatusOrder.text = currentItem.status.toString()
+        if (currentItem.status==0){
+            holder.textStatusOrder.text = "Đang xử lý"
             holder.imageOrder.setImageResource(R.drawable.status_pending)
             holder. textStatusOrder.setTextColor(Color.parseColor("#FABE05"))
         }
-        if (currentItem.status=="1"){
-            holder.textNameOrder.text = "Đã xác nhận"
+        if (currentItem.status==1){
+            holder.textStatusOrder.text = "Đã xác nhận"
             holder.imageOrder.setImageResource(R.drawable.status_recevie)
             holder. textStatusOrder.setTextColor(Color.parseColor("#15CD1C"))
         }
-        if (currentItem.status=="2"){
+        if (currentItem.status==2){
+            holder.textStatusOrder.text = "Đã hủy"
             holder.imageOrder.setImageResource(R.drawable.status_cancel)
             holder. textStatusOrder.setTextColor(Color.parseColor("#E63131"))
         }

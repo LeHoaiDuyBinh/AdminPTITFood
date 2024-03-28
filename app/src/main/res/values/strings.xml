@@ -2,6 +2,7 @@
     <string name="app_name">PTITFoodAdmin</string>
     <string name="name_shop">PTIT FOOD</string>
     <string name="login_admin">Đăng nhập tài khoản Admin</string>
+    <string name="username_error">Tài khoản không hợp lệ hoặc không tồn tại</string>
     <string name="order">Đơn hàng</string>
     <string name="complete_order">Đơn hàng\nhoàn tất</string>
     <string name="total_price">Tổng tiền</string>

@@ -30,6 +30,7 @@ class LoginAdmin : AppCompatActivity() {
 
         auth = Firebase.auth
         database = Firebase.database.reference
+        var s : String = "@ptitfoodadmin.edu.vn"
 
         val btnLogin = findViewById<Button>(R.id.btn_login)
         btnLogin.setOnClickListener{
@@ -39,7 +40,13 @@ class LoginAdmin : AppCompatActivity() {
             if(emailAdmin.isBlank() || passwordAdmin.isBlank()) {
                 Toast.makeText(this, "Vui lòng điền đầy đủ thông tin !", Toast.LENGTH_SHORT).show()
             } else {
-                signInAdmin(emailAdmin, passwordAdmin)
+                if (emailAdmin.endsWith(s.toString())) {
+                    // Nếu email chứa đúng địa chỉ email mong muốn
+                    signInAdmin(emailAdmin, passwordAdmin)
+                } else {
+                    // Nếu email không chứa đúng địa chỉ email mong muốn
+                    Toast.makeText(this, "Tài khoản hoặc mật khẩu không tồn tại", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }

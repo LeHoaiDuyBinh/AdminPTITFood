@@ -2,14 +2,21 @@ package com.example.ptitfoodadmin
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.StyleSpan
+import android.view.View
+import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Spinner
+import android.widget.TextView
 import android.widget.Toast
 import com.example.ptitfoodadmin.R
 import com.example.ptitfoodadmin.model.AdminModel
@@ -49,8 +56,27 @@ class AddUserAdmin : AppCompatActivity() {
         }
         setUp()
         val spinner = findViewById<Spinner>(R.id.spin_position)
-        val position = arrayOf("Quản lí", "Nhân viên")
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, position)
+        val positions = arrayOf("Quản lí", "Nhân viên")
+
+        val adapter = object : ArrayAdapter<String>(
+            this,
+            android.R.layout.simple_spinner_item,
+            position
+        ) {
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val v = super.getView(position, convertView, parent) as TextView
+                val text = "Chức vụ: ${positions[position]}"
+                val spannableText = SpannableString(text)
+                spannableText.setSpan(StyleSpan(Typeface.BOLD), 0, "Chức vụ: ".length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
+                v.text = spannableText
+                v.textSize = 18f
+                return v
+            }
+
+        }
+        spinner.adapter = adapter
+
+
 
         // Thêm user vào management admin
         auth = Firebase.auth

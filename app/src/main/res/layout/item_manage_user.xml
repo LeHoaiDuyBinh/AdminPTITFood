@@ -39,9 +39,15 @@
                 android:textStyle="bold"
                 android:textColor="@color/black"
                 android:textSize="20sp"/>
-
-
-
         </LinearLayout>
+
+        <ImageView
+            android:id="@+id/deleteButton"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginTop="16dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/delete" />
     </LinearLayout>
 </LinearLayout>

@@ -43,8 +43,8 @@ class MenuItemAdapter(
                     var string = ""
                     for (i in 0 until menuItem.foodTopping.size) {
                         if (i == menuItem.foodTopping.size - 1) {
-                            string += menuItem.foodTopping[i].name
-                        } else string += menuItem.foodTopping[i].name + ", "
+                            string += menuItem.foodTopping[i].toppingName
+                        } else string += menuItem.foodTopping[i].toppingName + ", "
                     }
                     ingredientTextView.text = string
                     textView10.visibility = View.VISIBLE // Hiển thị chữ "Ăn thêm"

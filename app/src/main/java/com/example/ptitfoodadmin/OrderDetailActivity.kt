@@ -4,6 +4,7 @@ import OrderDetailAdapter
 import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -39,23 +40,20 @@ class OrderDetailActivity : AppCompatActivity() {
     private fun displayOrderDetails(orderId: Int) {
         val recyclerView: RecyclerView = findViewById(R.id.orderDetailRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        val giuakiLocRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("giuaki-loc")
-        giuakiLocRef.addListenerForSingleValueEvent(object : ValueEventListener {
+        val orderRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("Order")
+        orderRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val orderDetailList = mutableListOf<OrderDetailItem>()
-                for (orderSnapshot in snapshot.child("order").children) {
-                    val currentOrderId = orderSnapshot.child("id").getValue(Long::class.java)
-                    if (currentOrderId?.toInt() == orderId) {
-                        val orderListSnapshot = orderSnapshot.child("orderList")
+                for (orderSnapshot in snapshot.children) {
+                    val currentOrderId = orderSnapshot.child("id").getValue(Int::class.java)
+                    if (currentOrderId == orderId) {
+                        val orderListSnapshot = orderSnapshot.child("OrderList")
                         for (productSnapshot in orderListSnapshot.children) {
-                            val productId = productSnapshot.key?.toInt() ?: 0
-                            val productName = productSnapshot.child("name").getValue(String::class.java) ?: ""
-                            val productDescription = productSnapshot.child("description").getValue(String::class.java) ?: ""
-                            val productPrice = productSnapshot.child("price").getValue(Int::class.java) ?: 0
-                            val productSpecialNote = productSnapshot.child("specialNote").getValue(String::class.java) ?: ""
-                            val productQuantity = productSnapshot.child("soluong").getValue(Int::class.java) ?: 0
+                            val productName = productSnapshot.child("Name").getValue(String::class.java) ?: ""
+                            val productPrice = productSnapshot.child("Price").getValue(Int::class.java) ?: 0
+                            val productQuantity = productSnapshot.child("quantity").getValue(Int::class.java) ?: 0
                             val productImageUrl = productSnapshot.child("url").getValue(String::class.java) ?: ""
-                            val orderDetailItem = OrderDetailItem(productId, productName, productDescription, productPrice, productSpecialNote, productQuantity, productImageUrl)
+                            val orderDetailItem = OrderDetailItem(productName, productPrice, productQuantity, productImageUrl)
                             orderDetailList.add(orderDetailItem)
                         }
                     }

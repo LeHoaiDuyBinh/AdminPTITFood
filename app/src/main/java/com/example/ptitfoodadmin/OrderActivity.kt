@@ -6,6 +6,7 @@ import android.widget.ImageButton
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.ptitfoodadmin.adapter.OrderAdapter
+import com.example.ptitfoodadmin.model.FoodItem
 import com.example.ptitfoodadmin.model.OrderItem
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -31,16 +32,29 @@ class OrderActivity : AppCompatActivity() {
             onBackPressed()
         }
 
-        val giuakiLocRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("giuaki-loc")
+        val orderRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("Order")
 
-        giuakiLocRef.addValueEventListener(object : ValueEventListener {
+        orderRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 orderList.clear()
-                for (orderSnapshot in snapshot.child("order").children) {
+                for (orderSnapshot in snapshot.children) {
                     val orderId = orderSnapshot.child("id").getValue(Int::class.java) ?: 0
-                    val orderStatus = orderSnapshot.child("status").getValue(String::class.java) ?: ""
-                    val orderName = orderSnapshot.child("name").getValue(String::class.java) ?: ""
-                    val orderItem = OrderItem(orderName, orderStatus, orderId)
+                    val orderStatus = orderSnapshot.child("Status").getValue(Int::class.java) ?: 0
+                    val orderName = orderSnapshot.child("Name").getValue(String::class.java) ?: ""
+                    val totalPrice = orderSnapshot.child("TotalPrice").getValue(Int::class.java) ?: 0
+
+                    val orderListSnapshot = orderSnapshot.child("OrderList")
+                    val foodList = mutableMapOf<String, FoodItem>()
+                    for (itemSnapshot in orderListSnapshot.children) {
+                        val itemName = itemSnapshot.child("Name").getValue(String::class.java) ?: ""
+                        val itemPrice = itemSnapshot.child("Price").getValue(Int::class.java) ?: 0
+                        val itemQuantity = itemSnapshot.child("quantity").getValue(Int::class.java) ?: 0
+                        val itemUrl = itemSnapshot.child("url").getValue(String::class.java) ?: ""
+                        val foodItem = FoodItem(itemName, itemPrice, itemQuantity, itemUrl)
+                        foodList[itemName] = foodItem
+                    }
+
+                    val orderItem = OrderItem(orderName, orderStatus, orderId, totalPrice, foodList)
                     orderList.add(orderItem)
                 }
                 adapter.notifyDataSetChanged()

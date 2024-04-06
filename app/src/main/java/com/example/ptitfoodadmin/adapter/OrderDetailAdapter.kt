@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.ptitfoodadmin.R
 import com.example.ptitfoodadmin.model.OrderDetailItem
+import com.google.firebase.storage.FirebaseStorage
 import com.squareup.picasso.Picasso
 
 
@@ -20,11 +21,13 @@ class OrderDetailAdapter(private val orderDetailList: List<OrderDetailItem>) :
 
     override fun onBindViewHolder(holder: OrderDetailViewHolder, position: Int) {
         val currentItem = orderDetailList[position]
-        Picasso.get().load(currentItem.imageUrl).into(holder.iamgeOrderItem)
+        FirebaseStorage.getInstance().getReferenceFromUrl(currentItem.imageUrl).downloadUrl.addOnSuccessListener { uri ->
+            Picasso.get().load(uri).into(holder.iamgeOrderItem)
+        }
         holder.textFoodName.text = currentItem.textNameOrderDetail
-        holder.textExtra.text = currentItem.textExtraOrderDetail
+        holder.textExtra.text = "Đồ ăn thêm"
         holder.textPrice.text = "Giá : "+currentItem.textPriceOrderDetail.toString()
-        holder.textNote.text = currentItem.textNoteOrderDetail
+        holder.textNote.text = "Ghi chú"
         holder.textQuantityOrderDetail.text="Số lượng : "+ currentItem.textQuantityOrderDetail.toString()
     }
 

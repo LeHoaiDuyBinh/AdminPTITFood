@@ -26,9 +26,11 @@ class ManagementOrderAdapter( private val orderList: List<ManagementOrderItem>,p
         holder.name.text = currentOrder.name
         holder.id.text = currentOrder.id.toString()
         holder.btnSuccess.setOnClickListener {
-            updateStatusOrder(currentOrder.id,"Đã nhận",holder)
+            updateStatusOrder(currentOrder.id, 1, holder) // Đã nhận
         }
-        holder.btnCancel.setOnClickListener { updateStatusOrder(currentOrder.id,"Đã hủy",holder) }
+        holder.btnCancel.setOnClickListener {
+            updateStatusOrder(currentOrder.id, 2, holder) // Đã hủy
+        }
         holder.detail.setOnClickListener{
             val context = holder.itemView.context
             val intent = Intent(context, OrderDetailActivity::class.java)
@@ -37,13 +39,13 @@ class ManagementOrderAdapter( private val orderList: List<ManagementOrderItem>,p
         }
     }
 
-    private fun updateStatusOrder(id: Int, newStatus: String,holder: OrderViewHolder) {
-        val giuakiLocRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("giuaki-loc")
+    private fun updateStatusOrder(id: Int, newStatus: Int, holder: OrderViewHolder) {
+        val orderRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("Order")
         val updates = HashMap<String, Any>()
-        updates["status"] = newStatus
-        val orderPath = "order/$id"
-
-        giuakiLocRef.child(orderPath).updateChildren(updates)
+        updates["Status"] = newStatus
+        val orderPath = "$id"
+        Log.d("UpdateStatus", "Updating status of order $id to $newStatus")
+        orderRef.child(orderPath).updateChildren(updates)
             .addOnSuccessListener {
                 dataUpdateListener.onDataUpdated()
             }

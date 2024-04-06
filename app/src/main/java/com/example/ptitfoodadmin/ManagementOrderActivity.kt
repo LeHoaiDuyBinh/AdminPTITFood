@@ -38,16 +38,15 @@ class ManagementOrderActivity : AppCompatActivity(),DataUpdateListener  {
     }
 
     private fun fetchAndUpdateData() {
-        val giuakiLocRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("giuaki-loc")
-        giuakiLocRef.addListenerForSingleValueEvent(object : ValueEventListener {
+        val orderRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("Order")
+        orderRef.addListenerForSingleValueEvent(object : ValueEventListener {
             @SuppressLint("NotifyDataSetChanged")
             override fun onDataChange(snapshot: DataSnapshot) {
-
-                for (orderSnapshot in snapshot.child("order").children) {
+                for (orderSnapshot in snapshot.children) {
                     val orderId = orderSnapshot.child("id").getValue(Int::class.java) ?: 0
-                    val orderStatus = orderSnapshot.child("status").getValue(String::class.java) ?: ""
-                    val orderName = orderSnapshot.child("name").getValue(String::class.java) ?: ""
-                    if (orderStatus == "Đang xử lý") {
+                    val orderStatus = orderSnapshot.child("Status").getValue(Int::class.java) ?: 0
+                    val orderName = orderSnapshot.child("Name").getValue(String::class.java) ?: ""
+                    if (orderStatus == 0) {
                         val managementOrderItem = ManagementOrderItem(orderName,orderId, orderStatus)
                         managementOrderList.add(managementOrderItem)
                     }

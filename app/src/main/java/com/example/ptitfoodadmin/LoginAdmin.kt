@@ -3,8 +3,10 @@ package com.example.ptitfoodadmin
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -30,16 +32,25 @@ class LoginAdmin : AppCompatActivity() {
 
         auth = Firebase.auth
         database = Firebase.database.reference
+        var s : String = "@ptitfoodadmin.edu.vn"
 
         val btnLogin = findViewById<Button>(R.id.btn_login)
         btnLogin.setOnClickListener{
             emailAdmin = edtEmail.text.toString().trim()
             passwordAdmin = edtPassword.text.toString().trim()
+            var tvCheck : TextView = findViewById(R.id.tv_username_error)
 
             if(emailAdmin.isBlank() || passwordAdmin.isBlank()) {
                 Toast.makeText(this, "Vui lòng điền đầy đủ thông tin !", Toast.LENGTH_SHORT).show()
             } else {
-                signInAdmin(emailAdmin, passwordAdmin)
+                if (emailAdmin.endsWith(s.toString())) {
+                    // Nếu email chứa đúng địa chỉ email mong muốn
+                    tvCheck.visibility = View.GONE
+                    signInAdmin(emailAdmin, passwordAdmin)
+                } else {
+                    // Nếu email không chứa đúng địa chỉ email mong muốn
+                    tvCheck.visibility = View.VISIBLE
+                }
             }
         }
     }

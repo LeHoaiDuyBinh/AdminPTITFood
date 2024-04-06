@@ -7,14 +7,18 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.example.ptitfoodadmin.database.DataHandler
 import com.example.ptitfoodadmin.databinding.ActivityMainBinding
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 
 class MainActivity : AppCompatActivity() {
     private val binding : ActivityMainBinding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
+    private lateinit var user :FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        user = FirebaseAuth.getInstance()
         val soLuongDonhang = findViewById<TextView>(R.id.soLuongDonHang)
         val soLuongDonHangHoanTat = findViewById<TextView>(R.id.soLuongDonHangHoanTat)
         val tongTien = findViewById<TextView>(R.id.tongTien)
@@ -68,5 +72,14 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, ManageAdmin::class.java)
             startActivity(intent)
         }
+
+        val btnLogOut = findViewById<ConstraintLayout>(R.id.btn_log_out)
+        btnLogOut.setOnClickListener{
+            user.signOut()
+            val intent = Intent(this, LoginAdmin::class.java)
+            startActivity(intent)
+        }
+
+
     }
 }

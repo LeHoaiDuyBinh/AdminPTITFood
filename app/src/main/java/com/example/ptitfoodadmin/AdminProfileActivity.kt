@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.ImageButton
 import android.widget.Toast
+import com.example.ptitfoodadmin.databinding.ActivityAddMenuBinding
 import com.example.ptitfoodadmin.databinding.ActivityAdminProfileBinding
 import com.example.ptitfoodadmin.model.AdminModel
 import com.google.firebase.auth.FirebaseAuth

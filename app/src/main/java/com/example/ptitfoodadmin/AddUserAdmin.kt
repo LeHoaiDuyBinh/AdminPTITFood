@@ -118,7 +118,8 @@ class AddUserAdmin : AppCompatActivity() {
 
     }
     private fun addAdmin(emailaddAdmin: String, passwordaddAdmin: String) {
-        auth.createUserWithEmailAndPassword(emailaddAdmin, passwordaddAdmin).addOnCompleteListener { task ->
+        val lowerCaseEmail = emailaddAdmin.lowercase()
+        auth.createUserWithEmailAndPassword(lowerCaseEmail, passwordaddAdmin).addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 val admin = auth.currentUser
                 updateAdmin(admin)

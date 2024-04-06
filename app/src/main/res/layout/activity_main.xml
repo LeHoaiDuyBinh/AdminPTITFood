@@ -584,6 +584,7 @@
                 app:layout_constraintStart_toEndOf="@+id/cardView9"
                 app:layout_constraintTop_toTopOf="@+id/cardView9">
                 <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/btn_log_out"
                     android:layout_width="match_parent"
                     android:background="#F1B1B1"
                     android:layout_height="match_parent">

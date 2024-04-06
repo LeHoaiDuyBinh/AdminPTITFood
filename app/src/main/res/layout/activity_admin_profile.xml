@@ -35,7 +35,7 @@
             app:layout_constraintTop_toTopOf="@+id/backButton" />
 
         <LinearLayout
-            android:id="@+id/linearLayoutName"
+            android:id="@+id/linearLayoutAdminCode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -47,6 +47,45 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_show">
+
+            <TextView
+                android:id="@+id/tv_adminCode"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_weight="2.2"
+                android:paddingStart="15dp"
+                android:gravity="center"
+                android:text="Admin Code"
+                android:textSize="18dp" />
+
+            <EditText
+                android:id="@+id/et_adminCode"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_weight="1"
+                android:paddingLeft="15dp"
+                android:textColor="@color/black"
+                android:backgroundTint="@android:color/transparent"
+                android:inputType="textPersonName"
+                android:text="AD01"
+                android:textSize="18dp"
+                android:enabled="false"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayoutName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="12dp"
+            android:background="@drawable/custom_edt_login"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayoutAdminCode">
 
             <TextView
                 android:id="@+id/tv_name"
@@ -78,6 +117,7 @@
                 android:src="@drawable/edit_icon" />
 
         </LinearLayout>
+
 
         <LinearLayout
             android:id="@+id/linearLayoutAddress"
@@ -111,9 +151,9 @@
                 android:layout_weight="1"
                 android:backgroundTint="@android:color/transparent"
                 android:inputType="textMultiLine"
-                android:padding="15dp"
+                android:padding="18dp"
                 android:text="Man Thiện, Thủ Đức, Thành phố Hồ Chí Minh"
-                android:textSize="16dp" />
+                android:textSize="18dp" />
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -144,7 +184,7 @@
                 android:id="@+id/tv_email"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:layout_weight="3.5"
+                android:layout_weight="3.8"
                 android:gravity="center"
                 android:paddingStart="15dp"
                 android:text="Email"
@@ -157,12 +197,13 @@
                 android:layout_weight="1"
                 android:backgroundTint="@android:color/transparent"
                 android:paddingLeft="15dp"
+                android:enabled="false"
+                android:textColor="@color/black"
                 android:inputType="textEmailAddress"
                 android:text="admin@gmail.com"
-                android:textSize="18dp" />
-
-
-
+                android:textSize="18dp"
+                android:scrollHorizontally="true"
+                android:scrollbars="horizontal"/>
         </LinearLayout>
 
         <LinearLayout

@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.ImageButton
 import android.widget.Toast
-import com.example.ptitfoodadmin.databinding.ActivityAddMenuBinding
 import com.example.ptitfoodadmin.databinding.ActivityAdminProfileBinding
 import com.example.ptitfoodadmin.model.AdminModel
 import com.google.firebase.auth.FirebaseAuth
@@ -49,31 +48,26 @@ class AdminProfileActivity : AppCompatActivity() {
         binding.btnSaveProfile.setOnClickListener {
             val name = binding.etName.text.toString()
             val address = binding.etAddress.text.toString()
-            val email =  auth.currentUser?.email ?: ""
             val phone = binding.etSdt.text.toString()
-            updateAdminData(name, address, email, phone)
+            updateAdminData(name, address, phone)
         }
-
-
     }
 
     private fun updateAdminData(
         name: String,
         address: String,
-        email: String,
         phone: String,
     ) {
         val adminID = sha1(auth.currentUser?.email ?: "")
         if (adminID != null) {
-            val adminRef: DatabaseReference = database.reference.child("Admin").child(adminID)
+            val adminRef: DatabaseReference = database.getReference().child("Admin").child(adminID)
 
-            val adminData = hashMapOf(
-                "name" to name,
-                "email" to email,
-                "address" to address,
-                "phone" to phone,
-            )
-            adminRef.setValue(adminData).addOnSuccessListener {
+            val updateMap = HashMap<String, Any>()
+            updateMap["name"] = name
+            updateMap["address"] = address
+            updateMap["phone"] = phone
+
+            adminRef.updateChildren(updateMap).addOnSuccessListener {
                 Toast.makeText(this, "Profile Updated Successfully!", Toast.LENGTH_SHORT).show()
             }.addOnFailureListener {
                 Toast.makeText(this, "Profile Updated Failed!", Toast.LENGTH_SHORT).show()
@@ -84,12 +78,13 @@ class AdminProfileActivity : AppCompatActivity() {
     private fun setAdminData() {
         val adminID = sha1(auth.currentUser?.email ?: "")
         if (adminID != null) {
-            val adminRef: DatabaseReference = database.reference.child("Admin").child(adminID)
+            val adminRef: DatabaseReference = database.getReference().child("Admin").child(adminID)
             adminRef.addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val adminProfile = snapshot.getValue(AdminModel::class.java)
                     if(adminProfile != null)
                     {
+                        binding.etAdminCode.setText(adminProfile.adminCode)
                         binding.etName.setText(adminProfile.name)
                         binding.etEmail.setText(adminProfile.email)
                         binding.etAddress.setText(adminProfile.address)

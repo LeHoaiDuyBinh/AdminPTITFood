@@ -60,41 +60,26 @@
         app:layout_constraintTop_toBottomOf="@+id/tv_name_shop">
 
     </TextView>
-<<<<<<< HEAD
-=======
 
 
->>>>>>> 2e337404df6f0547a46b936dfde931da8877dd99
     <EditText
         android:id="@+id/edt_name"
         android:layout_width="370dp"
         android:layout_height="60dp"
         android:layout_marginTop="20dp"
         android:background="@drawable/custom_edt_login"
-<<<<<<< HEAD
-        android:drawableLeft="@drawable/user"
-        android:drawablePadding="1dp"
-=======
         android:drawableLeft="@drawable/ic_baseline_user_24"
 
         android:drawablePadding="10dp"
->>>>>>> 2e337404df6f0547a46b936dfde931da8877dd99
         android:elevation="1dp"
         android:hint="Họ và tên"
         android:inputType="textPersonName"
         android:paddingStart="10dp"
         app:layout_constraintEnd_toEndOf="@+id/tv_login"
-<<<<<<< HEAD
-        app:layout_constraintStart_toStartOf="@+id/tv_login"
-        app:layout_constraintTop_toBottomOf="@+id/tv_login" />
-
-
-=======
         app:layout_constraintHorizontal_bias="0.443"
         app:layout_constraintStart_toStartOf="@+id/tv_login"
         app:layout_constraintTop_toBottomOf="@+id/tv_login" />
 
->>>>>>> 2e337404df6f0547a46b936dfde931da8877dd99
     <EditText
         android:id="@+id/edt_password"
         android:layout_width="370dp"
@@ -121,22 +106,11 @@
         android:background="@drawable/custom_edt_login"
         android:drawablePadding="10dp"
         android:elevation="1dp"
-<<<<<<< HEAD
-        android:hint="Chức vụ"
-        android:paddingStart="10dp"
-        app:layout_constraintEnd_toEndOf="@+id/edt_email"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/edt_email"
-        app:layout_constraintTop_toBottomOf="@+id/edt_email"
-        />
-
-=======
         android:paddingStart="10dp"
         app:layout_constraintEnd_toEndOf="@+id/edt_email"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="@+id/edt_email"
         app:layout_constraintTop_toBottomOf="@+id/edt_email" />
->>>>>>> 2e337404df6f0547a46b936dfde931da8877dd99
 
     <EditText
         android:id="@+id/edt_email"

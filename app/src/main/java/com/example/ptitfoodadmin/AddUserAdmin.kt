@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.StyleSpan
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
@@ -24,7 +25,12 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.Query
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.database
 import java.security.MessageDigest
 
@@ -35,6 +41,7 @@ class AddUserAdmin : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private var count: Int = 0
     private lateinit var database: DatabaseReference
+    private lateinit var databaseReference : DatabaseReference
     private lateinit var edtUserName : EditText
     private lateinit var edtEmail: EditText
     private lateinit var edtPassword: EditText
@@ -81,6 +88,20 @@ class AddUserAdmin : AppCompatActivity() {
         // Thêm user vào management admin
         auth = Firebase.auth
         database = Firebase.database.reference
+        databaseReference = FirebaseDatabase.getInstance().getReference("Admin")
+        val query: Query = databaseReference.orderByKey()
+        query.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                // Lấy số lượng phần tử trong dataSnapshot
+                count = dataSnapshot.childrenCount.toInt()
+                Log.d("YourActivity", "Size of Admin data: $count")
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Xử lý khi có lỗi xảy ra
+                Log.e("YourActivity", "Error getting Admin data size: ${databaseError.message}")
+            }
+        })
         var s : String = "@ptitfoodadmin.edu.vn"
 
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -134,8 +155,8 @@ class AddUserAdmin : AppCompatActivity() {
             if (task.isSuccessful) {
                 Toast.makeText(this, "Đã tạo thêm tài khoản thành công", Toast.LENGTH_SHORT).show()
                 saveUser()
-                val intent = Intent(this, ManageAdmin ::class.java)
-                startActivity(intent)
+//                val intent = Intent(this, ManageAdmin ::class.java)
+//                startActivity(intent)
                 finish()
             }else{
                 Toast.makeText(this, "Đã xảy ra lỗi khi đăng ký", Toast.LENGTH_SHORT).show()
@@ -145,7 +166,6 @@ class AddUserAdmin : AppCompatActivity() {
 
     private fun saveUser() {
         var code : String = "AD"
-        count += 1;
         emailaddAdmin = edtEmail.text.toString().trim()
         userNameAdmin = edtUserName.text.toString().trim()
         passwordaddAdmin = edtPassword.text.toString().trim()
@@ -157,8 +177,12 @@ class AddUserAdmin : AppCompatActivity() {
         // Lưu thông tin khách hàng vào database của Firebase realtime
 //        val userId = FirebaseAuth.getInstance().currentUser!!.uid
         val encodedEmail = sha1(emailaddAdmin)
-
+        Toast.makeText(this, "Đăng nhập lại Admin để cấp lại quyền", Toast.LENGTH_SHORT).show()
         database.child("Admin").child(encodedEmail).setValue(user)
+        val logout = FirebaseAuth.getInstance()
+        logout.signOut()
+        val intent = Intent(this, LoginAdmin::class.java)
+        startActivity(intent)
     }
 
     private fun updateAdmin(admin: FirebaseUser?) {

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- success_toast_background.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <!-- Màu nền của thông báo thành công -->
+    <solid android:color="#C62519" /> <!-- Green 500 -->
+
+    <!-- Đường viền xung quanh -->
+    <stroke
+        android:width="2dp"
+        android:color="#CC1E12" /> <!-- Green 700 -->
+
+    <!-- Góc bo tròn của hình dạng -->
+    <corners android:radius="8dp" />
+</shape>

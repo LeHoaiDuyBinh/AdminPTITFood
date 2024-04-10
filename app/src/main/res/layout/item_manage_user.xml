@@ -16,29 +16,31 @@
             android:orientation="vertical"
             android:layout_marginStart="16dp">
             <TextView
-                android:id="@+id/textNameOrder"
+                android:id="@+id/tvNameUserAD"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_semibold"
                 android:text="Họ tên"
-                android:textStyle="bold"
                 android:textColor="@color/black"
-                android:textSize="30sp"/>
+                android:textSize="20sp"/>
 
             <TextView
-                android:id="@+id/textIdOrder"
+                android:id="@+id/tvEmailUserAD"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_semibold"
                 android:text="Email"
-                android:textSize="20sp" />
+                android:textColor="#918D8D"
+                android:textSize="18sp" />
 
             <TextView
-                android:id="@+id/textNameUser"
+                android:id="@+id/tvRoleUserAD"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Chức vụ"
-                android:textStyle="bold"
+                android:fontFamily="@font/poppins_semibold"
                 android:textColor="@color/black"
-                android:textSize="20sp"/>
+                android:textSize="18sp"/>
         </LinearLayout>
 
         <ImageView

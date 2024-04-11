@@ -60,8 +60,4 @@ class ManagementOrderActivity : AppCompatActivity(),DataUpdateListener  {
             }
         })
     }
-
-    private fun ManagementOrderItem(name: String, id: String, status: Int): ManagementOrderItem {
-        return ManagementOrderItem(name, id, status)
-    }
 }

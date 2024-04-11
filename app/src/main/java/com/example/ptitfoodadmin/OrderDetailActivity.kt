@@ -6,10 +6,13 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.ptitfoodadmin.model.OrderDetailItem
+import com.example.ptitfoodadmin.model.FoodItem
+import com.example.ptitfoodadmin.model.OrderItem
+import com.example.ptitfoodadmin.model.ToppingItem
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -28,8 +31,8 @@ class OrderDetailActivity : AppCompatActivity() {
             onBackPressed()
         }
 
-        val orderId = intent.getIntExtra("orderId", -1)
-        if (orderId != -1) {
+        val orderId = intent.getStringExtra("orderId")
+        if (orderId != null) {
             displayOrderDetails(orderId)
         } else {
             Toast.makeText(this, "Invalid orderId", Toast.LENGTH_SHORT).show()
@@ -37,24 +40,37 @@ class OrderDetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun displayOrderDetails(orderId: Int) {
+    private fun displayOrderDetails(orderId: String) {
         val recyclerView: RecyclerView = findViewById(R.id.orderDetailRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        val orderRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("Order")
+        val orderRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("Orders")
         orderRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val orderDetailList = mutableListOf<OrderDetailItem>()
-                for (orderSnapshot in snapshot.children) {
-                    val currentOrderId = orderSnapshot.child("id").getValue(Int::class.java)
-                    if (currentOrderId == orderId) {
-                        val orderListSnapshot = orderSnapshot.child("OrderList")
-                        for (productSnapshot in orderListSnapshot.children) {
-                            val productName = productSnapshot.child("Name").getValue(String::class.java) ?: ""
-                            val productPrice = productSnapshot.child("Price").getValue(Int::class.java) ?: 0
-                            val productQuantity = productSnapshot.child("quantity").getValue(Int::class.java) ?: 0
-                            val productImageUrl = productSnapshot.child("url").getValue(String::class.java) ?: ""
-                            val orderDetailItem = OrderDetailItem(productName, productPrice, productQuantity, productImageUrl)
-                            orderDetailList.add(orderDetailItem)
+                val orderDetailList = mutableListOf<FoodItem>()
+                outerLoop@ for (orderSnapshot in snapshot.children) {
+                    for (orderDetailSnapshot in orderSnapshot.children) {
+                        if(orderDetailSnapshot.key == orderId) {
+                            val orderItem = orderDetailSnapshot.getValue(OrderItem::class.java)
+                            if (orderItem != null) {
+                                val textTotalPrice: TextView = findViewById(R.id.tv_total_price)
+                                textTotalPrice.text = "Tổng tiền: ${orderItem.totalPrice}"
+                                for (foodItemSnapshot in orderDetailSnapshot.child("orderDetail").children) {
+                                    val foodItem = foodItemSnapshot.getValue(FoodItem::class.java)
+                                    if (foodItem != null) {
+                                        val toppingList = mutableListOf<ToppingItem>()
+                                        for (toppingItemSnapshot in foodItemSnapshot.child("foodTopping").children) {
+                                            val toppingItem = toppingItemSnapshot.getValue(ToppingItem::class.java)
+                                            if (toppingItem != null) {
+                                                toppingList.add(toppingItem)
+                                            }
+                                        }
+                                        foodItem.foodTopping = toppingList
+                                        orderDetailList.add(foodItem)
+                                    }
+                                }
+                                orderItem.orderDetail = orderDetailList
+                            }
+                            break@outerLoop
                         }
                     }
                 }

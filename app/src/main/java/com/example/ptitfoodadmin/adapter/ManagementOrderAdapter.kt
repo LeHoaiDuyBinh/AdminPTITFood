@@ -10,8 +10,13 @@ import com.example.ptitfoodadmin.DataUpdateListener
 import com.example.ptitfoodadmin.OrderDetailActivity
 import com.example.ptitfoodadmin.R
 import com.example.ptitfoodadmin.model.ManagementOrderItem
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class ManagementOrderAdapter( private val orderList: List<ManagementOrderItem>,private val dataUpdateListener: DataUpdateListener) :
     RecyclerView.Adapter<ManagementOrderAdapter.OrderViewHolder>() {
@@ -25,6 +30,11 @@ class ManagementOrderAdapter( private val orderList: List<ManagementOrderItem>,p
         val currentOrder = orderList[position]
         holder.name.text = currentOrder.name
         holder.id.text = currentOrder.id.toString()
+        holder.btnTransport.setOnClickListener {
+            it.isEnabled = false // Disable the button
+            holder.btnTransport.text = "Đang giao"
+            updateStatusOrder(currentOrder.id, 3, holder) // Đang giao
+        }
         holder.btnSuccess.setOnClickListener {
             updateStatusOrder(currentOrder.id, 1, holder) // Đã nhận
         }
@@ -39,19 +49,35 @@ class ManagementOrderAdapter( private val orderList: List<ManagementOrderItem>,p
         }
     }
 
-    private fun updateStatusOrder(id: Int, newStatus: Int, holder: OrderViewHolder) {
-        val orderRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("Order")
-        val updates = HashMap<String, Any>()
-        updates["Status"] = newStatus
-        val orderPath = "$id"
-        Log.d("UpdateStatus", "Updating status of order $id to $newStatus")
-        orderRef.child(orderPath).updateChildren(updates)
-            .addOnSuccessListener {
-                dataUpdateListener.onDataUpdated()
+    private fun updateStatusOrder(id: String, newStatus: Int, holder: OrderViewHolder) {
+        val orderRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("Orders")
+        orderRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (userSnapshot in snapshot.children) {
+                    for (orderSnapshot in userSnapshot.children) {
+                        if (orderSnapshot.key == id) {
+                            val updates = HashMap<String, Any>()
+                            updates["orderStatus"] = newStatus
+                            val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
+                            val formattedDate = sdf.format(System.currentTimeMillis())
+                            updates["updatedTime"] = formattedDate
+                            orderSnapshot.ref.updateChildren(updates)
+                                .addOnSuccessListener {
+                                    dataUpdateListener.onDataUpdated()
+                                }
+                                .addOnFailureListener {
+                                    Log.e("UpdateStatus", "Update status failed", it)
+                                }
+                            break
+                        }
+                    }
+                }
             }
-            .addOnFailureListener {
-                Log.e("UpdateStatus", "Update status failed", it)
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("UpdateStatus", "Update status failed", error.toException())
             }
+        })
     }
 
 
@@ -61,6 +87,7 @@ class ManagementOrderAdapter( private val orderList: List<ManagementOrderItem>,p
     class OrderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val name: TextView = itemView.findViewById(R.id.orderName)
         val id: TextView = itemView.findViewById(R.id.orderId)
+        val btnTransport: Button = itemView.findViewById(R.id.btn_transport)
         val btnSuccess: Button = itemView.findViewById(R.id.btn_accpept)
         val btnCancel: Button = itemView.findViewById(R.id.btn_cancel)
         val detail: TextView =itemView.findViewById(R.id.viewDetail)

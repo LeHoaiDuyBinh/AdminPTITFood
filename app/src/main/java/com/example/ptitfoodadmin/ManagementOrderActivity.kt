@@ -38,24 +38,30 @@ class ManagementOrderActivity : AppCompatActivity(),DataUpdateListener  {
     }
 
     private fun fetchAndUpdateData() {
-        val orderRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("Order")
+        val orderRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("Orders")
         orderRef.addListenerForSingleValueEvent(object : ValueEventListener {
             @SuppressLint("NotifyDataSetChanged")
             override fun onDataChange(snapshot: DataSnapshot) {
-                for (orderSnapshot in snapshot.children) {
-                    val orderId = orderSnapshot.child("id").getValue(Int::class.java) ?: 0
-                    val orderStatus = orderSnapshot.child("Status").getValue(Int::class.java) ?: 0
-                    val orderName = orderSnapshot.child("Name").getValue(String::class.java) ?: ""
-                    if (orderStatus == 0) {
-                        val managementOrderItem = ManagementOrderItem(orderName,orderId, orderStatus)
-                        managementOrderList.add(managementOrderItem)
+                for (userSnapshot in snapshot.children) {
+                    for (orderSnapshot in userSnapshot.children) {
+                        val orderId = orderSnapshot.key ?: ""
+                        val orderStatus = orderSnapshot.child("orderStatus").getValue(Int::class.java) ?: 0
+                        val userName = orderSnapshot.child("userName").getValue(String::class.java) ?: ""
+                        if (orderStatus == 0 || orderStatus==3) {
+                            val managementOrderItem = ManagementOrderItem(userName, orderId, orderStatus)
+                            managementOrderList.add(managementOrderItem)
+                        }
                     }
-                    recyclerView.adapter?.notifyDataSetChanged()
                 }
+                recyclerView.adapter?.notifyDataSetChanged()
             }
             override fun onCancelled(error: DatabaseError) {
                 Toast.makeText(this@ManagementOrderActivity, "Error fetching data from Firebase", Toast.LENGTH_SHORT).show()
             }
         })
+    }
+
+    private fun ManagementOrderItem(name: String, id: String, status: Int): ManagementOrderItem {
+        return ManagementOrderItem(name, id, status)
     }
 }

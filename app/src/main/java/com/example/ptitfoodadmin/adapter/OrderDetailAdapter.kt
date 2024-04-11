@@ -1,4 +1,4 @@
-import android.content.Context
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -6,12 +6,12 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.ptitfoodadmin.R
-import com.example.ptitfoodadmin.model.OrderDetailItem
+import com.example.ptitfoodadmin.model.FoodItem
 import com.google.firebase.storage.FirebaseStorage
 import com.squareup.picasso.Picasso
 
 
-class OrderDetailAdapter(private val orderDetailList: List<OrderDetailItem>) :
+class OrderDetailAdapter(private val orderDetailList: MutableList<FoodItem>) :
     RecyclerView.Adapter<OrderDetailAdapter.OrderDetailViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OrderDetailViewHolder {
@@ -19,16 +19,22 @@ class OrderDetailAdapter(private val orderDetailList: List<OrderDetailItem>) :
         return OrderDetailViewHolder(itemView)
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: OrderDetailViewHolder, position: Int) {
         val currentItem = orderDetailList[position]
-        FirebaseStorage.getInstance().getReferenceFromUrl(currentItem.imageUrl).downloadUrl.addOnSuccessListener { uri ->
+        FirebaseStorage.getInstance().getReferenceFromUrl(currentItem.foodImage).downloadUrl.addOnSuccessListener { uri ->
             Picasso.get().load(uri).into(holder.iamgeOrderItem)
         }
-        holder.textFoodName.text = currentItem.textNameOrderDetail
-        holder.textExtra.text = "Đồ ăn thêm"
-        holder.textPrice.text = "Giá : "+currentItem.textPriceOrderDetail.toString()
-        holder.textNote.text = "Ghi chú"
-        holder.textQuantityOrderDetail.text="Số lượng : "+ currentItem.textQuantityOrderDetail.toString()
+        holder.textFoodName.text = currentItem.foodName
+        val foodToppingString = currentItem.foodTopping.joinToString(separator = ", ") { it.toString() }
+        if (foodToppingString.isNotEmpty()) {
+            holder.textExtra.text = "Topping : $foodToppingString"
+        } else {
+            holder.textExtra.text = ""
+        }
+        holder.textPrice.text = "Giá : "+currentItem.foodPrice
+        holder.textNote.text = "Ghi chú : "+currentItem.foodNote
+        holder.textQuantityOrderDetail.text="Số lượng : "+ currentItem.foodQuantity.toString()
     }
 
     override fun getItemCount(): Int {

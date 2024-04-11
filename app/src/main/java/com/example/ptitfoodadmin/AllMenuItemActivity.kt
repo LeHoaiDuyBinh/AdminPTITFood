@@ -39,7 +39,7 @@ class AllMenuItemActivity : AppCompatActivity() {
 
     private fun retrieveMenuItem() {
         database = FirebaseDatabase.getInstance()
-        val foodRef: DatabaseReference = database.reference.child("Menu")
+        val foodRef: DatabaseReference = database.reference.child("menu")
 
         //Fecth data form data base
         foodRef.addListenerForSingleValueEvent(object : ValueEventListener {

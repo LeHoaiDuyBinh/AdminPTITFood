@@ -31,12 +31,23 @@
                 android:layout_height="wrap_content"
                 android:text="123"
                 android:textSize="20sp" />
-
+            <TextView
+                android:id="@+id/createdTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ngày tạo"
+                android:textSize="25sp" />
+            <TextView
+                android:id="@+id/updatedTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ngày cập nhât"
+                android:textSize="25sp" />
             <TextView
                 android:id="@+id/textStatusOrder"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="order_status"
+                android:text="Trạng thái"
                 android:textSize="25sp" />
 
         </LinearLayout>

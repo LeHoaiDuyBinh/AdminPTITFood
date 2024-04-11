@@ -2,12 +2,14 @@ package com.example.ptitfoodadmin
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.ImageButton
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.ptitfoodadmin.adapter.OrderAdapter
 import com.example.ptitfoodadmin.model.FoodItem
 import com.example.ptitfoodadmin.model.OrderItem
+import com.example.ptitfoodadmin.model.ToppingItem
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -32,34 +34,36 @@ class OrderActivity : AppCompatActivity() {
             onBackPressed()
         }
 
-        val orderRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("Order")
-
+        val orderRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("Orders")
         orderRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 orderList.clear()
                 for (orderSnapshot in snapshot.children) {
-                    val orderId = orderSnapshot.child("id").getValue(Int::class.java) ?: 0
-                    val orderStatus = orderSnapshot.child("Status").getValue(Int::class.java) ?: 0
-                    val orderName = orderSnapshot.child("Name").getValue(String::class.java) ?: ""
-                    val totalPrice = orderSnapshot.child("TotalPrice").getValue(Int::class.java) ?: 0
-
-                    val orderListSnapshot = orderSnapshot.child("OrderList")
-                    val foodList = mutableMapOf<String, FoodItem>()
-                    for (itemSnapshot in orderListSnapshot.children) {
-                        val itemName = itemSnapshot.child("Name").getValue(String::class.java) ?: ""
-                        val itemPrice = itemSnapshot.child("Price").getValue(Int::class.java) ?: 0
-                        val itemQuantity = itemSnapshot.child("quantity").getValue(Int::class.java) ?: 0
-                        val itemUrl = itemSnapshot.child("url").getValue(String::class.java) ?: ""
-                        val foodItem = FoodItem(itemName, itemPrice, itemQuantity, itemUrl)
-                        foodList[itemName] = foodItem
+                    for (orderDetailSnapshot in orderSnapshot.children) {
+                        val orderItem = orderDetailSnapshot.getValue(OrderItem::class.java)
+                        if (orderItem != null) {
+                            val orderDetailList = mutableListOf<FoodItem>()
+                            for (foodItemSnapshot in orderDetailSnapshot.child("orderDetail").children) {
+                                val foodItem = foodItemSnapshot.getValue(FoodItem::class.java)
+                                if (foodItem != null) {
+                                    val toppingList = mutableListOf<ToppingItem>()
+                                    for (toppingItemSnapshot in foodItemSnapshot.child("foodTopping").children) {
+                                        val toppingItem = toppingItemSnapshot.getValue(ToppingItem::class.java)
+                                        if (toppingItem != null) {
+                                            toppingList.add(toppingItem)
+                                        }
+                                    }
+                                    foodItem.foodTopping = toppingList
+                                    orderDetailList.add(foodItem)
+                                }
+                            }
+                            orderItem.orderDetail = orderDetailList
+                            orderList.add(orderItem)
+                        }
                     }
-
-                    val orderItem = OrderItem(orderName, orderStatus, orderId, totalPrice, foodList)
-                    orderList.add(orderItem)
                 }
                 adapter.notifyDataSetChanged()
             }
-
             override fun onCancelled(error: DatabaseError) {
                 // Xử lý lỗi
             }

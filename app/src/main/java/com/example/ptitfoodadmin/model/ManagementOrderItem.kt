@@ -1,5 +1,12 @@
 package com.example.ptitfoodadmin.model
 
-class ManagementOrderItem(val name: String, val id: String, val status:Int) {
-    var isTransportButtonDisabled: Boolean = false
+data class ManagementOrderItem(
+
+    val name: String,
+    val id: String,
+    val orderStatus: Int
+
+
+){
+    constructor() : this("", "", 0)
 }

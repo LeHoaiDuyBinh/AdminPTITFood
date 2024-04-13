@@ -47,7 +47,7 @@ class ManagementOrderActivity : AppCompatActivity(),DataUpdateListener  {
                         val orderId = orderSnapshot.key ?: ""
                         val orderStatus = orderSnapshot.child("orderStatus").getValue(Int::class.java) ?: 0
                         val userName = orderSnapshot.child("userName").getValue(String::class.java) ?: ""
-                        if (orderStatus == 0 || orderStatus==3) {
+                        if (orderStatus == 0 || orderStatus==3 || orderStatus==1) {
                             val managementOrderItem = ManagementOrderItem(userName, orderId, orderStatus)
                             managementOrderList.add(managementOrderItem)
                         }

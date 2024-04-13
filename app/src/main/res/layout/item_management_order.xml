@@ -71,5 +71,14 @@
             android:layout_marginStart="10dp"
             android:background="@drawable/button_cancel"
             android:text="Huỷ đơn" />
+        <Button
+            android:id="@+id/btn_end"
+            android:visibility="gone"
+            android:layout_width="5dp"
+            android:layout_height="30dp"
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/button_cancel"
+            android:text="Kết thúc đơn hàng" />
     </LinearLayout>
 </LinearLayout>

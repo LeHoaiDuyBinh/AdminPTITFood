@@ -9,7 +9,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.ptitfoodadmin.DataUpdateListener
 import com.example.ptitfoodadmin.OrderDetailActivity
 import com.example.ptitfoodadmin.R
+import com.example.ptitfoodadmin.model.FoodItem
 import com.example.ptitfoodadmin.model.ManagementOrderItem
+import com.example.ptitfoodadmin.model.OrderItem
+import com.example.ptitfoodadmin.model.ToppingItem
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -30,6 +33,16 @@ class ManagementOrderAdapter( private val orderList: List<ManagementOrderItem>,p
         val currentOrder = orderList[position]
         holder.name.text = currentOrder.name
         holder.id.text = currentOrder.id.toString()
+        if (currentOrder.status == 3) {
+            holder.btnTransport.isEnabled = false
+            holder.btnTransport.text = "Đang giao"
+        }
+        if (currentOrder.status == 1) {
+            holder.btnTransport.visibility=View.GONE;
+            holder.btnSuccess.visibility=View.GONE;
+            holder.btnCancel.visibility=View.GONE;
+            holder.btnEnd.visibility=View.VISIBLE;
+        }
         holder.btnTransport.setOnClickListener {
             it.isEnabled = false // Disable the button
             holder.btnTransport.text = "Đang giao"
@@ -37,9 +50,15 @@ class ManagementOrderAdapter( private val orderList: List<ManagementOrderItem>,p
         }
         holder.btnSuccess.setOnClickListener {
             updateStatusOrder(currentOrder.id, 1, holder) // Đã nhận
+
         }
         holder.btnCancel.setOnClickListener {
             updateStatusOrder(currentOrder.id, 2, holder) // Đã hủy
+        }
+        holder.btnEnd.setOnClickListener {
+            deleteOrder(holder)
+
+
         }
         holder.detail.setOnClickListener{
             val context = holder.itemView.context
@@ -47,6 +66,59 @@ class ManagementOrderAdapter( private val orderList: List<ManagementOrderItem>,p
             intent.putExtra("orderId",currentOrder.id)
             context.startActivity(intent)
         }
+    }
+
+    private fun deleteOrder(holder: OrderViewHolder) {
+        val orderRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("Orders")
+        orderRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (userSnapshot in snapshot.children) {
+                    for (orderSnapshot in userSnapshot.children) {
+                        if(orderSnapshot.key==holder.id.text.toString()){
+                        val orderItem = orderSnapshot.getValue(OrderItem::class.java)
+                        if (orderItem != null) {
+                            val orderDetailList = mutableListOf<FoodItem>()
+                            for (foodItemSnapshot in orderSnapshot.child("orderDetail").children) {
+                                val foodItem = foodItemSnapshot.getValue(FoodItem::class.java)
+                                if (foodItem != null) {
+                                    val toppingList = mutableListOf<ToppingItem>()
+                                    for (toppingItemSnapshot in foodItemSnapshot.child("foodTopping").children) {
+                                        val toppingItem = toppingItemSnapshot.getValue(ToppingItem::class.java)
+                                        if (toppingItem != null) {
+                                            toppingList.add(toppingItem)
+                                        }
+                                    }
+                                    foodItem.foodTopping = toppingList
+                                    orderDetailList.add(foodItem)
+                                }
+                            }
+                            orderItem.orderDetail = orderDetailList
+                        }
+
+                        val userId= orderItem?.userId
+                        val userCode = orderItem?.orderCode
+                        val userRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("OrderHistory").child(userId.toString())
+                        if (userCode != null) {
+                            userRef.child(userCode).setValue(orderItem)
+                                .addOnSuccessListener {
+                                    Log.d("AddOrder", "Order added successfully to userRef")
+                                }
+                                .addOnFailureListener {
+                                    Log.e("AddOrder", "Failed to add order to userRef", it)
+                                }
+                        }
+                        orderSnapshot.ref.removeValue()
+                            dataUpdateListener.onDataUpdated()
+                        break
+                        }
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("UpdateStatus", "Update status failed", error.toException())
+            }
+        })
     }
 
     private fun updateStatusOrder(id: String, newStatus: Int, holder: OrderViewHolder) {
@@ -91,5 +163,6 @@ class ManagementOrderAdapter( private val orderList: List<ManagementOrderItem>,p
         val btnSuccess: Button = itemView.findViewById(R.id.btn_accpept)
         val btnCancel: Button = itemView.findViewById(R.id.btn_cancel)
         val detail: TextView =itemView.findViewById(R.id.viewDetail)
+        val  btnEnd :Button =itemView.findViewById(R.id.btn_end)
     }
 }

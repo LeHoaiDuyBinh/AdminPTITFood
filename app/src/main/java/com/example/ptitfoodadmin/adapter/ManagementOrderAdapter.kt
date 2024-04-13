@@ -75,41 +75,41 @@ class ManagementOrderAdapter( private val orderList: List<ManagementOrderItem>,p
                 for (userSnapshot in snapshot.children) {
                     for (orderSnapshot in userSnapshot.children) {
                         if(orderSnapshot.key==holder.id.text.toString()){
-                        val orderItem = orderSnapshot.getValue(OrderItem::class.java)
-                        if (orderItem != null) {
-                            val orderDetailList = mutableListOf<FoodItem>()
-                            for (foodItemSnapshot in orderSnapshot.child("orderDetail").children) {
-                                val foodItem = foodItemSnapshot.getValue(FoodItem::class.java)
-                                if (foodItem != null) {
-                                    val toppingList = mutableListOf<ToppingItem>()
-                                    for (toppingItemSnapshot in foodItemSnapshot.child("foodTopping").children) {
-                                        val toppingItem = toppingItemSnapshot.getValue(ToppingItem::class.java)
-                                        if (toppingItem != null) {
-                                            toppingList.add(toppingItem)
+                            val orderItem = orderSnapshot.getValue(OrderItem::class.java)
+                            if (orderItem != null) {
+                                val orderDetailList = mutableListOf<FoodItem>()
+                                for (foodItemSnapshot in orderSnapshot.child("orderDetail").children) {
+                                    val foodItem = foodItemSnapshot.getValue(FoodItem::class.java)
+                                    if (foodItem != null) {
+                                        val toppingList = mutableListOf<ToppingItem>()
+                                        for (toppingItemSnapshot in foodItemSnapshot.child("foodTopping").children) {
+                                            val toppingItem = toppingItemSnapshot.getValue(ToppingItem::class.java)
+                                            if (toppingItem != null) {
+                                                toppingList.add(toppingItem)
+                                            }
                                         }
+                                        foodItem.foodTopping = toppingList
+                                        orderDetailList.add(foodItem)
                                     }
-                                    foodItem.foodTopping = toppingList
-                                    orderDetailList.add(foodItem)
                                 }
+                                orderItem.orderDetail = orderDetailList
                             }
-                            orderItem.orderDetail = orderDetailList
-                        }
 
-                        val userId= orderItem?.userId
-                        val userCode = orderItem?.orderCode
-                        val userRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("OrderHistory").child(userId.toString())
-                        if (userCode != null) {
-                            userRef.child(userCode).setValue(orderItem)
-                                .addOnSuccessListener {
-                                    Log.d("AddOrder", "Order added successfully to userRef")
-                                }
-                                .addOnFailureListener {
-                                    Log.e("AddOrder", "Failed to add order to userRef", it)
-                                }
-                        }
-                        orderSnapshot.ref.removeValue()
+                            val userId= orderItem?.userId
+                            val userCode = orderItem?.orderCode
+                            val userRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("OrderHistory").child(userId.toString())
+                            if (userCode != null) {
+                                userRef.child(userCode).setValue(orderItem)
+                                    .addOnSuccessListener {
+                                        Log.d("AddOrder", "Order added successfully to userRef")
+                                    }
+                                    .addOnFailureListener {
+                                        Log.e("AddOrder", "Failed to add order to userRef", it)
+                                    }
+                            }
+                            orderSnapshot.ref.removeValue()
                             dataUpdateListener.onDataUpdated()
-                        break
+                            break
                         }
                     }
                 }

@@ -9,13 +9,13 @@
         android:id="@+id/textViewIndex"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="0.7"
+        android:layout_weight="0.6"
         android:fontFamily="@font/poppins_semibold"
         android:textColor="@color/black"
         android:textSize="16sp"/>
 
     <TextView
-        android:id="@+id/textViewProductName"
+        android:id="@+id/textViewOrderCode"
         android:layout_width="0dp"
         android:fontFamily="@font/poppins_semibold"
         android:layout_height="wrap_content"
@@ -24,16 +24,16 @@
         android:textSize="16sp"/>
 
     <TextView
-        android:id="@+id/textViewQuantity"
+        android:id="@+id/textViewUserName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1.2"
+        android:layout_weight="1.5"
         android:fontFamily="@font/poppins_semibold"
         android:textColor="@color/black"
         android:textSize="16sp" />
 
     <TextView
-        android:id="@+id/textViewTotal"
+        android:id="@+id/textViewTotalPrices"
         android:layout_width="16dp"
         android:layout_height="wrap_content"
         android:fontFamily="@font/poppins_semibold"

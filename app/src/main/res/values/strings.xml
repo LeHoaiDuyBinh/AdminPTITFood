@@ -31,7 +31,7 @@
     <string name="price_1">Giá:</string>
     <string name="revenue">Doanh thu</string>
     <string name="chart">Biểu đồ</string>
-    <string name="revenue_by_day">Doanh thu theo ngày</string>
+    <string name="revenue_by_month">Doanh thu theo tháng</string>
     <string name="best_seller">Món ăn bán chạy</string>
     <string name="quantity">Số lượng</string>
     <string name="eat_more1">Ăn thêm:</string>
@@ -45,5 +45,7 @@
     <string name="text"></string>
     <string name="add_login_admin">Tạo tài khoản Admin</string>
     <string name="quanLyTaiKhoan">Quản lý tài khoản</string>
+    <string name="order_code">Mã đơn</string>
+    <string name="user_name">Khách hàng</string>
 
 </resources>

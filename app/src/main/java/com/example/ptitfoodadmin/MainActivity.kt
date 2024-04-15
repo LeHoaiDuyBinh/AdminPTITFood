@@ -1,8 +1,10 @@
 package com.example.ptitfoodadmin
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
@@ -16,6 +18,9 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import java.security.MessageDigest
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
     private val binding : ActivityMainBinding by lazy {
@@ -83,6 +88,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
         setUp()
+        pendingOders()
 
     }
 
@@ -103,12 +109,12 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, AllMenuItemActivity::class.java)
             startActivity(intent)
         }
-//
-//        val viewChartActivity = findViewById<ConstraintLayout>(R.id.btn_view_chart)
-//        viewChartActivity.setOnClickListener{
-//            val intent = Intent(this, ChartActivity::class.java)
-//            startActivity(intent)
-//        }
+
+        val viewChartActivity = findViewById<ConstraintLayout>(R.id.btn_view_chart)
+        viewChartActivity.setOnClickListener{
+            val intent = Intent(this, ChartActivity::class.java)
+            startActivity(intent)
+        }
 
         val viewRevenueActivity = findViewById<ConstraintLayout>(R.id.btn_view_revenue)
         viewRevenueActivity.setOnClickListener{
@@ -160,6 +166,97 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, LoginAdmin::class.java)
             startActivity(intent)
         }
+
+    }
+
+    private fun pendingOders(){
+        val orderHistoryRef = FirebaseDatabase.getInstance().getReference("OrderHistory")
+        val orderRef = FirebaseDatabase.getInstance().getReference("Orders")
+        var totalOrders = 0
+        var completedOrders = 0
+        var totalPrices = 0
+
+        val currentDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date())
+        Log.d("MainActivity", "Current Date: $currentDate")
+        // Lắng nghe sự kiện một lần khi có thay đổi trong "OrderHistory"
+        orderHistoryRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            @SuppressLint("SetTextI18n")
+            override fun onDataChange(snapshot: DataSnapshot) {
+                // Duyệt qua từng người dùng trong "OrderHistory"
+                snapshot.children.forEach { userSnapshot ->
+                    // Duyệt qua từng đơn hàng của người dùng
+                    userSnapshot.children.forEach { orderSnapshot ->
+                        // Tăng biến đếm tổng số đơn hàng
+                        totalOrders++
+                        // Lấy giá trị của trường "orderStatus"
+                        val orderStatus =
+                            orderSnapshot.child("orderStatus").getValue(Int::class.java)
+                        // Kiểm tra nếu đơn hàng đã hoàn tất (orderStatus = 1) thì tăng biến đếm số đơn hàng hoàn tất
+                        if (orderStatus == 1) {
+                            completedOrders++
+                        }
+                        val orderDate = orderSnapshot.child("updatedTime").getValue(String::class.java)
+                        val sdfOrderDate = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
+                        val dateOrder = sdfOrderDate.parse(orderDate)
+                        val sdfFormattedOrderDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                        val formattedOrderDate = sdfFormattedOrderDate.format(dateOrder)
+                        Log.d("MainActivity", "Order Date: $formattedOrderDate")
+                        if (formattedOrderDate == currentDate) {
+                            val orderTotalPrice = orderSnapshot.child("totalPrice").getValue(String::class.java)?.replace(".", "")?.replace("đ", "")?.trim()?.toIntOrNull() ?: 0
+                            totalPrices += orderTotalPrice
+                        }
+
+                    }
+                }
+
+                orderRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        // Tiếp tục xử lý tương tự với "Orders"
+                        // Lấy thông tin từ "Orders" và cập nhật biến totalOrders, completedOrders, totalPrices
+                    }
+                    override fun onCancelled(error: DatabaseError) {
+                        println("Failed to read value: ${error.toException()}")
+                    }
+                })
+                val formattedTotalPrice = formatCurrency(totalPrices)
+                // Cập nhật giá trị cho TextView bằng data binding
+                binding.soLuongDonHang.text = addLeadingZero(totalOrders)
+                binding.soLuongDonHangHoanTat.text = addLeadingZero(completedOrders)
+                binding.tongTien.text = "${formattedTotalPrice}đ/ngày"
+            }
+            override fun onCancelled(error: DatabaseError) {
+                println("Failed to read value: ${error.toException()}")
+            }
+        })
+
+        orderRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(ordersSnapshot: DataSnapshot) {
+                // Duyệt qua từng người dùng trong "Orders"
+                ordersSnapshot.children.forEach { userSnapshot ->
+                    // Duyệt qua từng đơn hàng của người dùng
+                    userSnapshot.children.forEach { orderSnapshot ->
+                        // Tăng biến đếm tổng số đơn hàng từ Orders
+                        totalOrders++
+                    }
+                }
+
+                binding.soLuongDonHang.text =   addLeadingZero(totalOrders)
+            }
+            override fun onCancelled(error: DatabaseError) {
+                println("Failed to read value: ${error.toException()}")
+            }
+        })
+    }
+    private fun addLeadingZero(number: Int): String {
+        return if (number < 10) {
+            String.format("%02d", number)
+        } else {
+            number.toString()
+        }
+    }
+    fun formatCurrency(amount: Int): String {
+        val formatter = java.text.DecimalFormat("#,###")
+        return formatter.format(amount)
     }
 
     fun sha1(input: String): String {

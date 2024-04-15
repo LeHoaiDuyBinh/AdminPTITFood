@@ -3,9 +3,13 @@ package com.example.ptitfoodadmin
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.ContactsContract.CommonDataKinds.Im
 import android.util.Log
 import android.widget.ImageButton
+import android.widget.ImageView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.ptitfoodadmin.adapter.MenuItemAdapter
 import com.example.ptitfoodadmin.databinding.ActivityAllMenuItemBinding
 import com.example.ptitfoodadmin.model.AllMenu
@@ -39,7 +43,7 @@ class AllMenuItemActivity : AppCompatActivity() {
 
     private fun retrieveMenuItem() {
         database = FirebaseDatabase.getInstance()
-        val foodRef: DatabaseReference = database.reference.child("menu")
+        val foodRef: DatabaseReference = database.reference.child("Menu")
 
         //Fecth data form data base
         foodRef.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -62,6 +66,7 @@ class AllMenuItemActivity : AppCompatActivity() {
             }
         })
     }
+
     private fun setAdapter() {
         val adapter = MenuItemAdapter(this@AllMenuItemActivity, menuItems,databaseReference)
         binding.MenuRecyclerView.layoutManager = LinearLayoutManager(this)

@@ -1,12 +1,14 @@
 package com.example.ptitfoodadmin.adapter
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.ptitfoodadmin.AddMenuActivity
 
 import com.example.ptitfoodadmin.databinding.ItemItemBinding
 import com.example.ptitfoodadmin.model.AllMenu
@@ -36,6 +38,7 @@ class MenuItemAdapter(
                 val menuItem = menuList[position]
                 val urisString = menuItem.foodImage
                 val uri = Uri.parse(urisString)
+
                 foodNameTextView.text = menuItem.foodName
                 priceTextView.text = menuItem.foodPrice
                 if (menuItem.foodTopping != null && menuItem.foodTopping.isNotEmpty()) {
@@ -55,6 +58,16 @@ class MenuItemAdapter(
                     ingredientTextView.visibility = View.GONE // Ẩn nguyên liệu
                 }
                 Glide.with(context).load(uri).into(foodImageView)
+                //Khi nhấn edit_menu của AllMenu
+//                editMenu.setOnClickListener {
+//                    val intent = Intent(context, AddMenuActivity::class.java)
+//                    context.startActivity(intent)
+//                }
+                editMenu.setOnClickListener {
+                    val intent = Intent(context, AddMenuActivity::class.java)
+                    intent.putExtra("Menu", menuItem.foodName)
+                    context.startActivity(intent)
+                }
                 deleteButton.setOnClickListener {
                     deleteQuantity(position)
                 }

@@ -36,11 +36,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins_semibold"
-                    android:text="@string/add_items"
+                    android:text="@string/menu"
                     android:textColor="#BE1515"
                     android:textSize="42sp"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.318"
+                    app:layout_constraintHorizontal_bias="0.4"
                     app:layout_constraintStart_toEndOf="@+id/backButton"
                     app:layout_constraintTop_toTopOf="@+id/backButton" />
 
@@ -136,6 +136,7 @@
                     android:elevation="5dp"
                     android:hint="@string/decribe"
                     android:inputType="text"
+                    android:paddingLeft="15dp"
                     android:outlineSpotShadowColor="#BCB4B4"
                     android:textColor="@color/black"
                     android:textSize="20dp"
@@ -173,11 +174,12 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:layout_weight="10">
+
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/recyclerView"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            tools:listitem="@layout/item_food"/>
+                            tools:listitem="@layout/item_food" />
                         <!--                        <CheckBox-->
                         <!--                            android:id="@+id/ingredient"-->
                         <!--                            android:layout_weight="7"-->
@@ -217,7 +219,25 @@
                     android:textSize="20sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.118"
                     app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/ll_topping"
+                    app:layout_constraintVertical_bias="0.0" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/EditItemButton"
+                    android:layout_width="157dp"
+                    android:layout_height="57dp"
+                    android:layout_marginTop="49dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@drawable/shape"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:text="@string/edit_items"
+                    android:textColor="@color/white"
+                    android:textSize="20sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/AddItemButton"
                     app:layout_constraintTop_toBottomOf="@+id/ll_topping" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </ScrollView>

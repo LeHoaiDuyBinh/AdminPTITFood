@@ -1,17 +1,22 @@
 package com.example.ptitfoodadmin
 
-import android.app.AlertDialog
 import com.example.ptitfoodadmin.adapter.AddFoddItemMenuAdapter
 import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.CheckBox
+import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.example.ptitfoodadmin.adapter.MenuItemAdapter
 import com.example.ptitfoodadmin.databinding.ActivityAddMenuBinding
 import com.example.ptitfoodadmin.model.AllMenu
 import com.example.ptitfoodadmin.model.FoodTopping
@@ -19,6 +24,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.GenericTypeIndicator
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
@@ -49,6 +55,11 @@ class AddMenuActivity : AppCompatActivity(), AddFoddItemMenuAdapter.OnIngredient
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        val foodNameEdt = findViewById<EditText>(R.id.foodName)
+        val foodPriceEdt = findViewById<EditText>(R.id.foodPrice)
+        val foodDescriptionEdt = findViewById<EditText>(R.id.decription)
+        val foodToppingCb = findViewById<LinearLayout>(R.id.ll_topping)
 
         val foodList = listOf(
             Pair("Chả lụa", "12.000đ"),
@@ -105,6 +116,38 @@ class AddMenuActivity : AppCompatActivity(), AddFoddItemMenuAdapter.OnIngredient
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
+//Điền dữ liêu vào để sửa
+        val selectedImage = findViewById<ImageView>(R.id.selectedImage)
+        val menuName = intent.getStringExtra("Menu") // Lấy tên món ăn từ Intent
+        val query = FirebaseDatabase.getInstance().getReference("Menu")
+            .orderByChild("foodName")
+            .equalTo(menuName)
+        query.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                for (snapshot in dataSnapshot.children) {
+                    val typeIndicator = object : GenericTypeIndicator<AllMenu>() {}
+                    val menuItemToEdit = snapshot.getValue(typeIndicator)
+                    foodNameEdt.setText(menuItemToEdit?.foodName)
+                    foodPriceEdt.setText(menuItemToEdit?.foodPrice)
+                    val imageUri = Uri.parse(menuItemToEdit?.foodImage)
+                    Glide.with(this@AddMenuActivity).load(imageUri).into(selectedImage)
+                    foodDescriptionEdt.setText(menuItemToEdit?.foodDescription)
+                    for (i in 0 until foodToppingCb.childCount) {
+                        val child = foodToppingCb.getChildAt(i)
+                        if (child is CheckBox) {
+                            child.isChecked = menuItemToEdit?.foodTopping?.any { it.toppingName == child.text.toString() } == true
+                        }
+                    }
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Xử lý lỗi
+                Log.e("FirebaseError", "Error: ${databaseError.message}")
+                Toast.makeText(this@AddMenuActivity, "Có lỗi xảy ra khi truy vấn dữ liệu từ Firebase: ${databaseError.message}", Toast.LENGTH_LONG).show()
+            }
+        })
+
     }
 
     private fun uploadData() {

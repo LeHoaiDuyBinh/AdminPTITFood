@@ -7,7 +7,9 @@
     <string name="complete_order">Đơn hàng\nhoàn tất</string>
     <string name="total_price">Tổng tiền</string>
     <string name="add_items">Thêm món</string>
+    <string name="edit_items">Sửa món</string>
     <string name="all_items_menu">Hiển thị</string>
+    <string name="menu">Menu</string>
     <string name="order_management">Quản lý đơn hàng</string>
     <string name="user_plus_01">Thêm user</string>
     <string name="user_management">Quản lý User Admin</string>

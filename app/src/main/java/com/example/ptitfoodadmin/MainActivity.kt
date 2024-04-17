@@ -96,14 +96,14 @@ class MainActivity : AppCompatActivity() {
         val soLuongDonhang = findViewById<TextView>(R.id.soLuongDonHang)
         val soLuongDonHangHoanTat = findViewById<TextView>(R.id.soLuongDonHangHoanTat)
         val tongTien = findViewById<TextView>(R.id.tongTien)
-        val viewAddMenu = findViewById<ConstraintLayout>(R.id.btn_add_menu)
+//        val viewAddMenu = findViewById<ConstraintLayout>(R.id.btn_add_menu)
         val authAdmin = FirebaseAuth.getInstance()
         val admin = authAdmin.currentUser
 
-        viewAddMenu.setOnClickListener{
-            val intent = Intent(this, AddMenuActivity::class.java)
-            startActivity(intent)
-        }
+//        viewAddMenu.setOnClickListener{
+//            val intent = Intent(this, AddMenuActivity::class.java)
+//            startActivity(intent)
+//        }
         val viewAllMenuItem = findViewById<ConstraintLayout>(R.id.bnt_show)
         viewAllMenuItem.setOnClickListener{
             val intent = Intent(this, AllMenuItemActivity::class.java)
@@ -153,6 +153,37 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
+        val addMenuAdmin = findViewById<ConstraintLayout>(R.id.btn_add_menu)
+        addMenuAdmin.setOnClickListener{
+            val currentUser = FirebaseAuth.getInstance().currentUser
+            // Kiểm tra xem người dùng hiện tại có tồn tại không
+            if (currentUser != null) {
+                val userEmail = currentUser.email
+                val databaseReference = FirebaseDatabase.getInstance().getReference("Admin").child(sha1(userEmail.toString()))
+                databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        val role = dataSnapshot.child("role").getValue(String::class.java)
+
+                        // Kiểm tra xem người dùng có email là "adminptitfood@ptitfoodadmin.edu.vn" hoặc vai trò là "Quản lí" không
+                        if (userEmail == "adminptitfood@ptitfoodadmin.edu.vn" || role == "Quản lí") {
+                            val intent = Intent(this@MainActivity, AddMenuActivity::class.java)
+                            startActivity(intent)
+                        } else {
+                            // Nếu không, hiển thị thông báo lỗi
+                            Toast.makeText(this@MainActivity, "Bạn không có quyền thêm Menu", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
+                    override fun onCancelled(databaseError: DatabaseError) {
+                        // Xử lý khi có lỗi xảy ra khi truy vấn dữ liệu từ Firebase
+                        Toast.makeText(this@MainActivity, "Đã xảy ra lỗi: ${databaseError.message}", Toast.LENGTH_SHORT).show()
+                    }
+                })
+            }
+        }
+
+
 
         val manageAdmin = findViewById<ConstraintLayout>(R.id.btn_user_management)
         manageAdmin.setOnClickListener{

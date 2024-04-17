@@ -2,6 +2,10 @@
     <string name="app_name">PTITFoodAdmin</string>
     <string name="name_shop">PTIT FOOD</string>
     <string name="login_admin">Đăng nhập tài khoản Admin</string>
+    <string name="password">Mật khẩu</string>
+    <string name="first_last_name">Họ và tên</string>
+    <string name="login">Đăng nhập</string>
+    <string name="confirm">Xác nhận</string>
     <string name="username_error">Tài khoản không hợp lệ hoặc không tồn tại</string>
     <string name="order">Đơn hàng</string>
     <string name="complete_order">Đơn hàng\nhoàn tất</string>
@@ -42,10 +46,20 @@
     <string name="huyDon">Hủy đơn</string>
     <string name="text_btn_detail">Xem chi tiết</string>
     <string name="edit_profile">Chỉnh sửa thông tin</string>
-    <string name="text"></string>
     <string name="add_login_admin">Tạo tài khoản Admin</string>
     <string name="quanLyTaiKhoan">Quản lý tài khoản</string>
     <string name="order_code">Mã đơn</string>
     <string name="user_name">Khách hàng</string>
-
+    <string name="status">Trạng thái</string>
+    <string name="update_day">Ngày cập nhật</string>
+    <string name="day_creat">Ngày tạo</string>
+    <string name="finish_order">Kết thúc đơn hàng</string>
+    <string name="tranport">Vận chuyển</string>
+    <string name="position">Chức vụ</string>
+    <string name="select_month_day">Chọn tháng năm</string>
+    <string name="delete">Xóa</string>
+    <string name="total_price_1">Tổng tiền: </string>
+    <string name="address">Địa chỉ</string>
+    <string name="quantity_1">Số lượng: </string>
+    <string name="save_information">Lưu thông tin</string>
 </resources>

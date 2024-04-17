@@ -35,19 +35,19 @@
                 android:id="@+id/createdTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Ngày tạo"
+                android:text="@string/day_creat"
                 android:textSize="25sp" />
             <TextView
                 android:id="@+id/updatedTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Ngày cập nhât"
+                android:text="@string/update_day"
                 android:textSize="25sp" />
             <TextView
                 android:id="@+id/textStatusOrder"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Trạng thái"
+                android:text="@string/status"
                 android:textSize="25sp" />
 
         </LinearLayout>

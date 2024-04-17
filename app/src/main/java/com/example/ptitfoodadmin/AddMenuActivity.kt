@@ -62,9 +62,9 @@ class AddMenuActivity : AppCompatActivity(), AddFoddItemMenuAdapter.OnIngredient
         val foodToppingCb = findViewById<LinearLayout>(R.id.ll_topping)
 
         val foodList = listOf(
-            Pair("Chả lụa", "12.000đ"),
-            Pair("Thịt bò", "20.000đ"),
-            Pair("Xúc xích", "15.000đ")
+            Pair(getString(R.string.cha_lua), "12.000đ"),
+            Pair(getString(R.string.thit_bo), "20.000đ"),
+            Pair(getString(R.string.xuc_xich), "15.000đ")
         )
 
         recyclerView = findViewById(R.id.recyclerView)

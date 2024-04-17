@@ -20,7 +20,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_semibold"
-                android:text="Họ tên"
+                android:text="@string/first_last_name"
                 android:textColor="@color/black"
                 android:textSize="20sp"/>
 
@@ -37,7 +37,7 @@
                 android:id="@+id/tvRoleUserAD"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Chức vụ"
+                android:text="@string/position"
                 android:fontFamily="@font/poppins_semibold"
                 android:textColor="@color/black"
                 android:textSize="18sp"/>

@@ -50,7 +50,7 @@
         android:id="@+id/textQuantityOrderDetail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Số lượng :10"
+        android:text="@string/quantity_1"
         android:textStyle="bold"
         android:textColor="@color/black"
         android:layout_marginEnd="8dp"

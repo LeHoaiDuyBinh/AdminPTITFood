@@ -37,12 +37,23 @@ class ManagementOrderAdapter( private val orderList: List<ManagementOrderItem>,p
             holder.btnTransport.isEnabled = false
             holder.btnTransport.text = "Đang giao"
         }
+        if(currentOrder.status==0){
+           holder.btnSuccess.visibility=View.GONE;
+
+        }
+        if (currentOrder.status == 3) {
+            holder.btnTransport.visibility=View.VISIBLE;
+            holder.btnSuccess.visibility=View.VISIBLE;
+            holder.btnCancel.visibility=View.VISIBLE;
+            holder.btnEnd.visibility=View.GONE;
+        }
         if (currentOrder.status == 1) {
             holder.btnTransport.visibility=View.GONE;
             holder.btnSuccess.visibility=View.GONE;
             holder.btnCancel.visibility=View.GONE;
             holder.btnEnd.visibility=View.VISIBLE;
         }
+
         holder.btnTransport.setOnClickListener {
             it.isEnabled = false // Disable the button
             holder.btnTransport.text = "Đang giao"
@@ -56,8 +67,8 @@ class ManagementOrderAdapter( private val orderList: List<ManagementOrderItem>,p
             updateStatusOrder(currentOrder.id, 2, holder) // Đã hủy
         }
         holder.btnEnd.setOnClickListener {
-            deleteOrder(holder)
-
+            moveOrderToHistory(holder)
+            updateStatusOrder(currentOrder.id, 4, holder) // Đã hoàn thành
 
         }
         holder.detail.setOnClickListener{
@@ -68,7 +79,7 @@ class ManagementOrderAdapter( private val orderList: List<ManagementOrderItem>,p
         }
     }
 
-    private fun deleteOrder(holder: OrderViewHolder) {
+    private fun moveOrderToHistory(holder: OrderViewHolder) {
         val orderRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("Orders")
         orderRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -102,12 +113,12 @@ class ManagementOrderAdapter( private val orderList: List<ManagementOrderItem>,p
                                 userRef.child(userCode).setValue(orderItem)
                                     .addOnSuccessListener {
                                         Log.d("AddOrder", "Order added successfully to userRef")
+                                        holder.btnEnd.visibility = View.GONE // Make the button disappear
                                     }
                                     .addOnFailureListener {
                                         Log.e("AddOrder", "Failed to add order to userRef", it)
                                     }
                             }
-                            orderSnapshot.ref.removeValue()
                             dataUpdateListener.onDataUpdated()
                             break
                         }

@@ -49,6 +49,11 @@ class OrderAdapter(private val orderList: List<OrderItem>) :
             holder.imageOrder.setImageResource(R.drawable.status_cancel)
             holder. textStatusOrder.setTextColor(Color.parseColor("#E63131"))
         }
+        if (currentItem.orderStatus==4){
+            holder.textStatusOrder.text = "Đã hoàn thành"
+            holder.imageOrder.setImageResource(R.drawable.status_recevie)
+            holder. textStatusOrder.setTextColor(Color.parseColor("#15CD1C"))
+        }
         holder.textIdOrder.text = "ID : "+ currentItem.orderCode
         holder.buttonDetail.setOnClickListener {
             val context = holder.itemView.context

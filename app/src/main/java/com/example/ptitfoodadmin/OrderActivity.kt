@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.ptitfoodadmin.adapter.OrderAdapter
 import com.example.ptitfoodadmin.model.FoodItem
+import com.example.ptitfoodadmin.model.ManagementOrderItem
 import com.example.ptitfoodadmin.model.OrderItem
 import com.example.ptitfoodadmin.model.ToppingItem
 import com.google.firebase.database.DataSnapshot
@@ -58,12 +59,20 @@ class OrderActivity : AppCompatActivity() {
                                 }
                             }
                             orderItem.orderDetail = orderDetailList
+                            // Hien thi order theo trang thai orderStatus = 0 (Dang xu ly)
+//                            if (orderItem.orderStatus == 0) {
+//                                orderList.add(orderItem)
+//                            }
                             orderList.add(orderItem)
                         }
+                        // Hien thi don moi nhat len dau
+                        orderList.sortByDescending { it.orderStatus == 0 }
                     }
                 }
                 adapter.notifyDataSetChanged()
+
             }
+
             override fun onCancelled(error: DatabaseError) {
                 // Xử lý lỗi
             }

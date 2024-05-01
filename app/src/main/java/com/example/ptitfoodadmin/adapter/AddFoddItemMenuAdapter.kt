@@ -8,12 +8,16 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.ptitfoodadmin.R
+import com.example.ptitfoodadmin.model.FoodTopping
 
 class AddFoddItemMenuAdapter(private val context: Context, private val foods: List<Pair<String, String>>) :
     RecyclerView.Adapter<AddFoddItemMenuAdapter.FoodViewHolder>() {
 
-    private var foodIngredient: String? = null
+    private var selectedIngredients: MutableList<String> = mutableListOf()
     private var ingredientCheckedChangeListener: OnIngredientCheckedChangeListener? = null
+    private var foodTopping: MutableList<FoodTopping> = mutableListOf()
+
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FoodViewHolder {
         val view = LayoutInflater.from(context).inflate(R.layout.item_food, parent, false)
@@ -22,7 +26,7 @@ class AddFoddItemMenuAdapter(private val context: Context, private val foods: Li
 
     override fun onBindViewHolder(holder: FoodViewHolder, position: Int) {
         val (foodName, price) = foods[position]
-        holder.bind(foodName, price)
+        holder.bind(foodName, price, selectedIngredients.contains(foodName))
     }
 
     override fun getItemCount(): Int {
@@ -30,27 +34,21 @@ class AddFoddItemMenuAdapter(private val context: Context, private val foods: Li
     }
 
     inner class FoodViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val linearLayout: LinearLayout = itemView.findViewById(R.id.ingredient)
         private val checkbox: CheckBox = itemView.findViewById(R.id.checkbox)
         private val priceTextView: TextView = itemView.findViewById(R.id.tv_price)
 
-        fun bind(foodName: String, price: String) {
+        fun bind(foodName: String, price: String, isChecked: Boolean) {
             checkbox.text = foodName
             priceTextView.text = price
+            checkbox.isChecked = isChecked
 
             checkbox.setOnCheckedChangeListener { _, isChecked ->
-                val ingredient = foodName
                 if (isChecked) {
-                    foodIngredient = if (foodIngredient.isNullOrEmpty()) {
-                        ingredient
-                    } else {
-                        "$foodIngredient, $ingredient"
-                    }
+                    selectedIngredients.add(foodName)
                 } else {
-                    foodIngredient = foodIngredient?.replace("$ingredient, ", "")
-                    foodIngredient = foodIngredient?.replace("$ingredient", "")
+                    selectedIngredients.remove(foodName)
                 }
-                ingredientCheckedChangeListener?.onIngredientCheckedChange(foodIngredient)
+                ingredientCheckedChangeListener?.onIngredientsListChanged(selectedIngredients)
             }
         }
     }
@@ -60,10 +58,22 @@ class AddFoddItemMenuAdapter(private val context: Context, private val foods: Li
     }
 
     interface OnIngredientCheckedChangeListener {
-        fun onIngredientCheckedChange(ingredient: String?)
+        fun onIngredientsListChanged(selectedIngredients: List<String>)
     }
 
-    fun getSelectedIngredients(): String? {
-        return foodIngredient
+    fun setSelectedIngredients(selectedIngredients: List<String>) {
+        this.selectedIngredients.clear()
+        this.selectedIngredients.addAll(selectedIngredients)
+        notifyDataSetChanged()
     }
+    fun setFoodTopping(toppings: MutableList<FoodTopping>) {
+        foodTopping = toppings
+        notifyDataSetChanged() // Cập nhật lại adapter khi danh sách thay đổi
+    }
+
+    fun getFoodTopping(): MutableList<FoodTopping> {
+        return foodTopping
+    }
+
+
 }

@@ -52,9 +52,14 @@ class MenuItemAdapter(
 //                ingredientTextView.text = menuItem.foodTopping
                     var string = ""
                     for (i in 0 until menuItem.foodTopping.size) {
-                        if (i == menuItem.foodTopping.size - 1) {
-                            string += menuItem.foodTopping[i].toppingName
-                        } else string += menuItem.foodTopping[i].toppingName + ", "
+                        val topping = menuItem.foodTopping[i]
+                        if (topping != null) {
+                            if (i == menuItem.foodTopping.size - 1) {
+                                string += topping.toppingName
+                            } else {
+                                string += "${topping.toppingName}, "
+                            }
+                        }
                     }
                     ingredientTextView.text = string
                     textView10.visibility = View.VISIBLE // Hiển thị chữ "Ăn thêm"
@@ -65,11 +70,6 @@ class MenuItemAdapter(
                     ingredientTextView.visibility = View.GONE // Ẩn nguyên liệu
                 }
                 Glide.with(context).load(uri).into(foodImageView)
-                //Khi nhấn edit_menu của AllMenu
-//                editMenu.setOnClickListener {
-//                    val intent = Intent(context, AddMenuActivity::class.java)
-//                    context.startActivity(intent)
-//                }
 
                 // Kiểm tra quyền truy cập của người dùng
                 val currentUser = FirebaseAuth.getInstance().currentUser
@@ -99,11 +99,44 @@ class MenuItemAdapter(
                     intent.putExtra("Menu", menuItem.foodName)
                     context.startActivity(intent)
                 }
+//                deleteButton.setOnClickListener {
+//                    deleteQuantity(position)
+//                }
+                //Xóa món ăn và xóa dữ lệu món ăn đó trên firebase
                 deleteButton.setOnClickListener {
-                    deleteQuantity(position)
+                    val databaseReference = FirebaseDatabase.getInstance().getReference("Menu")
+                    databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(dataSnapshot: DataSnapshot) {
+                            var itemDeleted = true // Biến để kiểm tra xem mục đã được xóa thành công hay không
+                            for (snapshot in dataSnapshot.children) {
+                                val menu = snapshot.getValue(AllMenu::class.java)
+                                if (menu != null) {
+                                    if (menu.foodName == menuItem.foodName) {
+                                        snapshot.ref.removeValue().addOnCompleteListener { task ->
+                                            if (task.isSuccessful) {
+                                                deleteQuantity(position)
+                                                itemDeleted = true // Đánh dấu mục đã được xóa thành công
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            if (itemDeleted) {
+                                Toast.makeText(context, "Đã xóa món ăn thành công!", Toast.LENGTH_SHORT).show()
+                            } else {
+                                Toast.makeText(context, "Xóa món ăn không thành công!", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+
+                        override fun onCancelled(databaseError: DatabaseError) {
+                            Log.e("AdminAdapter", "Đã xảy ra lỗi: ${databaseError.message}")
+                            Toast.makeText(context, "Đã xảy ra lỗi: ${databaseError.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    })
                 }
             }
         }
+        //Remove món ăn ra khỏi danh sách trên màn hình
         private fun deleteQuantity(position: Int) {
             menuList.removeAt(position)
             notifyItemRemoved(position)

@@ -31,6 +31,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import com.google.android.gms.tasks.OnSuccessListener
+
+
+
 
 class AddMenuActivity : AppCompatActivity(), AddFoddItemMenuAdapter.OnIngredientCheckedChangeListener {
     private lateinit var foodName: String
@@ -47,6 +51,7 @@ class AddMenuActivity : AppCompatActivity(), AddFoddItemMenuAdapter.OnIngredient
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: AddFoddItemMenuAdapter
+    private var selectedMenuKey: String? = null
 
     private val binding: ActivityAddMenuBinding by lazy {
         ActivityAddMenuBinding.inflate(layoutInflater)
@@ -56,15 +61,18 @@ class AddMenuActivity : AppCompatActivity(), AddFoddItemMenuAdapter.OnIngredient
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+
         val foodNameEdt = findViewById<EditText>(R.id.foodName)
         val foodPriceEdt = findViewById<EditText>(R.id.foodPrice)
         val foodDescriptionEdt = findViewById<EditText>(R.id.decription)
-        val foodToppingCb = findViewById<LinearLayout>(R.id.ll_topping)
+//        val foodToppingCb = findViewById<RecyclerView>(R.id.recyclerView)
 
         val foodList = listOf(
             Pair(getString(R.string.cha_lua), "12.000đ"),
             Pair(getString(R.string.thit_bo), "20.000đ"),
-            Pair(getString(R.string.xuc_xich), "15.000đ")
+            Pair(getString(R.string.xuc_xich), "15.000đ"),
+            Pair(getString(R.string.ca_chua), "10.000đ"),
+            Pair(getString(R.string.bap_cai), "5.000đ")
         )
 
         recyclerView = findViewById(R.id.recyclerView)
@@ -79,6 +87,7 @@ class AddMenuActivity : AppCompatActivity(), AddFoddItemMenuAdapter.OnIngredient
         foodTopping = mutableListOf()
 
         adapter.setOnIngredientCheckedChangeListener(this)
+
         binding.AddItemButton.setOnClickListener {
             foodName = binding.foodName.text.toString().trim()
             foodPrice = binding.foodPrice.text.toString().trim()
@@ -88,7 +97,6 @@ class AddMenuActivity : AppCompatActivity(), AddFoddItemMenuAdapter.OnIngredient
                 for (item in splitTopping) {
                     // Tìm kiếm trong foodList xem có phần tử nào trùng với item không
                     val matchedFood = foodList.find { it.first == item }
-
                     // Nếu tìm thấy phần tử trùng khớp, thêm vào foodTopping
                     if (matchedFood != null) {
                         val foodToppingItem = FoodTopping(matchedFood.first, matchedFood.second)
@@ -97,7 +105,6 @@ class AddMenuActivity : AppCompatActivity(), AddFoddItemMenuAdapter.OnIngredient
                 }
             }
             Log.d("Topping", foodTopping.toString())
-
             if (!(foodName.isBlank() || foodPrice.isBlank() || foodDescription.isBlank())) {
                 uploadData()
                 Toast.makeText(this, "Thêm món ăn thành công!", Toast.LENGTH_SHORT).show()
@@ -106,7 +113,6 @@ class AddMenuActivity : AppCompatActivity(), AddFoddItemMenuAdapter.OnIngredient
                 Toast.makeText(this, "Vui lòng điền vào ô trống! ", Toast.LENGTH_SHORT).show()
             }
         }
-
         binding.selectImage.setOnClickListener {
             pickImage.launch("image/*")
         }
@@ -118,41 +124,181 @@ class AddMenuActivity : AppCompatActivity(), AddFoddItemMenuAdapter.OnIngredient
         }
 //Điền dữ liêu vào để sửa
         val selectedImage = findViewById<ImageView>(R.id.selectedImage)
-        val menuName = intent.getStringExtra("Menu") // Lấy tên món ăn từ Intent
+        val menuName = intent.getStringExtra("Menu")
         val query = FirebaseDatabase.getInstance().getReference("Menu")
             .orderByChild("foodName")
             .equalTo(menuName)
         query.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (snapshot in dataSnapshot.children) {
-                    val typeIndicator = object : GenericTypeIndicator<AllMenu>() {}
-                    val menuItemToEdit = snapshot.getValue(typeIndicator)
+                    selectedMenuKey = snapshot.key
+                    val menuItemToEdit = snapshot.getValue(AllMenu::class.java)
                     foodNameEdt.setText(menuItemToEdit?.foodName)
                     foodPriceEdt.setText(menuItemToEdit?.foodPrice)
                     val imageUri = Uri.parse(menuItemToEdit?.foodImage)
                     Glide.with(this@AddMenuActivity).load(imageUri).into(selectedImage)
                     foodDescriptionEdt.setText(menuItemToEdit?.foodDescription)
-                    for (i in 0 until foodToppingCb.childCount) {
-                        val child = foodToppingCb.getChildAt(i)
-                        if (child is CheckBox) {
-                            child.isChecked = menuItemToEdit?.foodTopping?.any { it.toppingName == child.text.toString() } == true
+                    // Lưu trữ URL hình ảnh hiện tại
+                    val currentImageUrl = menuItemToEdit?.foodImage ?: ""
+                    // Lấy danh sách topping của món ăn
+                    val foodTopping = menuItemToEdit?.foodTopping
+                    if (foodTopping != null) {
+                        val selectedIngredients = foodTopping.filterNotNull().map { it.toppingName }
+                        // Cập nhật dữ liệu vào adapter
+                        adapter.setSelectedIngredients(selectedIngredients)
+                    }
+                    binding.EditItemButton.setOnClickListener {
+                        foodName = binding.foodName.text.toString().trim()
+                        foodPrice = binding.foodPrice.text.toString().trim()
+                        foodDescription = binding.decription.text.toString().trim()
+                        val splitTopping = foodIngredient?.split(", ")?.map { it.trim() }
+                        if (splitTopping != null) {
+//                            foodTopping?.clear()
+                            val foodRef = FirebaseDatabase.getInstance().getReference("Menu").child(selectedMenuKey!!).child("foodTopping")
+                            foodRef.removeValue().addOnSuccessListener {
+                                Log.d("TAG", "Xóa foodTopping thành công!")
+                                }
+                                .addOnFailureListener {
+                                    Log.e("TAG", "Xóa foodTopping thất bại!")
+                                }
+                            // Sử dụng hàm setFoodTopping để đặt danh sách foodTopping từ splitTopping
+                            if (splitTopping != null) {
+                                adapter.setFoodTopping(mutableListOf()) // Xóa danh sách cũ trước khi thêm mới
+                                for (item in splitTopping) {
+                                    val matchedFood = foodList.find { it.first == item }
+                                    if (matchedFood != null) {
+                                        val foodToppingItem = FoodTopping(matchedFood.first, matchedFood.second)
+                                        // Thêm foodToppingItem vào danh sách foodTopping bằng cách gọi hàm add
+                                        adapter.getFoodTopping().add(foodToppingItem)
+                                    }
+                                }
+                                adapter.notifyDataSetChanged() // Cập nhật lại adapter
+                            }
+// Để lấy danh sách foodTopping hiện tại, sử dụng hàm getFoodTopping
+                            val currentFoodToppings = adapter.getFoodTopping()
+                        }
+                        Log.d("Topping", foodTopping.toString())
+
+                        if (!(foodName.isBlank() || foodPrice.isBlank() || foodDescription.isBlank())) {
+                            // Tìm đến nút dữ liệu cần cập nhật
+                            val menuToUpdateRef =
+                                database.getReference("Menu").child(selectedMenuKey!!)
+                            // Kiểm tra xem hình ảnh mới có được chọn không
+                            val imageUrl = if (foodImageUri != null) {
+                                val storageRef = FirebaseStorage.getInstance().reference
+                                val imageRef = storageRef.child("menu_images/$selectedMenuKey.jpg")
+                                val uploadTask = imageRef.putFile(foodImageUri!!)
+                                uploadTask.addOnCompleteListener { uploadTask ->
+                                    if (uploadTask.isSuccessful) {
+                                        imageRef.downloadUrl.addOnCompleteListener { downloadUrlTask ->
+                                            if (downloadUrlTask.isSuccessful) {
+                                                val downloadUrl = downloadUrlTask.result
+                                                val imageUrl = downloadUrl.toString()
+
+                                                // Cập nhật dữ liệu
+                                                val updatedItem = AllMenu(
+                                                    foodName = foodName,
+                                                    foodPrice = foodPrice,
+                                                    foodDescription = foodDescription,
+                                                    foodImage = imageUrl,
+                                                    foodTopping = foodTopping ?: mutableListOf() // Sử dụng danh sách topping hiện tại
+                                                )
+                                                // Cập nhật dữ liệu
+                                                menuToUpdateRef.setValue(updatedItem)
+                                                    .addOnSuccessListener {
+                                                        Toast.makeText(
+                                                            this@AddMenuActivity,
+                                                            "Cập nhật món ăn thành công!",
+                                                            Toast.LENGTH_SHORT
+                                                        ).show()
+                                                        finish()
+                                                    }.addOnFailureListener {
+                                                        Toast.makeText(
+                                                            this@AddMenuActivity,
+                                                            "Cập nhật món ăn thất bại!",
+                                                            Toast.LENGTH_LONG
+                                                        ).show()
+                                                    }
+                                            } else {
+                                                // Xử lý khi không thể lấy được URL download
+                                                Log.e(
+                                                    "AddMenuActivity",
+                                                    "Error getting download URL: ${downloadUrlTask.exception}"
+                                                )
+                                                Toast.makeText(
+                                                    this@AddMenuActivity,
+                                                    "Có lỗi xảy ra khi tải lên hình ảnh!",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            }
+                                        }
+                                    } else {
+                                        // Xử lý khi không thể tải lên hình ảnh
+                                        Log.e(
+                                            "AddMenuActivity",
+                                            "Error uploading image: ${uploadTask.exception}"
+                                        )
+                                        Toast.makeText(
+                                            this@AddMenuActivity,
+                                            "Có lỗi xảy ra khi tải lên hình ảnh!",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                                ""
+                            } else {
+                                currentImageUrl // Sử dụng URL hình ảnh hiện tại
+                            }
+                            splitTopping?.let { toppings ->
+                                foodTopping?.removeIf { it.toppingName !in toppings }
+                            }
+// Cập nhật dữ liệu
+                            val updatedItem = AllMenu(
+                                foodName = foodName,
+                                foodPrice = foodPrice,
+                                foodDescription = foodDescription,
+                                foodImage = imageUrl,
+                                foodTopping = foodTopping
+                                    ?: mutableListOf() // Sử dụng danh sách topping hiện tại
+                            )
+                            // Cập nhật dữ liệu
+                            menuToUpdateRef.setValue(updatedItem).addOnSuccessListener {
+                                Toast.makeText(
+                                    this@AddMenuActivity,
+                                    "Cập nhật món ăn thành công!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                finish()
+                            }.addOnFailureListener {
+                                Toast.makeText(
+                                    this@AddMenuActivity,
+                                    "Cập nhật món ăn thất bại!",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        } else {
+                            Toast.makeText(
+                                this@AddMenuActivity,
+                                "Vui lòng điền vào ô trống! ",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
                 }
             }
-
             override fun onCancelled(databaseError: DatabaseError) {
-                // Xử lý lỗi
                 Log.e("FirebaseError", "Error: ${databaseError.message}")
-                Toast.makeText(this@AddMenuActivity, "Có lỗi xảy ra khi truy vấn dữ liệu từ Firebase: ${databaseError.message}", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    this@AddMenuActivity,
+                    "Có lỗi xảy ra khi truy vấn dữ liệu từ Firebase: ${databaseError.message}",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         })
-
     }
-
+//Thêm dữ liệu lên firebase khi nhấn thêm
     private fun uploadData() {
         val menuRef = database.getReference("Menu")
-
         GlobalScope.launch(Dispatchers.Main) {
             val newIndexKey = "Menu_${getIndex()}"
             if (foodImageUri != null) {
@@ -188,7 +334,14 @@ class AddMenuActivity : AppCompatActivity(), AddFoddItemMenuAdapter.OnIngredient
                 Toast.makeText(this@AddMenuActivity, "Hãy chọn hình ảnh cho món ăn!", Toast.LENGTH_SHORT).show()
             }
         }
+
     }
+
+
+    private fun createKeyFromName(name: String): String {
+        return name.filter { it.isLetterOrDigit() }.toLowerCase()
+    }
+
     private suspend fun getIndex(): Int {
         val query = database.getReference("Menu")
         return try {
@@ -206,8 +359,8 @@ class AddMenuActivity : AppCompatActivity(), AddFoddItemMenuAdapter.OnIngredient
                 foodImageUri = uri
             }
         }
-    override fun onIngredientCheckedChange(ingredient: String?) {
-        foodIngredient = ingredient
+    override fun onIngredientsListChanged(selectedIngredients: List<String>) {
+        foodIngredient = selectedIngredients.joinToString(", ")
         Log.d("AddMenuActivity", "Selected Ingredients: $foodIngredient")
     }
 

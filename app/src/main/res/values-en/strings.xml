@@ -7,7 +7,7 @@
     <string name="login">Login</string>
     <string name="username_error">The account is invalid or does not exist</string>
     <string name="order">Order</string>
-    <string name="complete_order">Order\\ncomplete</string>
+    <string name="complete_order">Order complete</string>
     <string name="total_price">Total price</string>
     <string name="add_items">Add menu</string>
     <string name="edit_items">Edit Menu</string>
@@ -26,7 +26,9 @@
     <string name="cha_lua">Pork bologna</string>
     <string name="thit_bo">Beef</string>
     <string name="xuc_xich">Sausage</string>
-    <string name="hamburger">Hamburger</string>
+    <string name="ca_chua">Tomato</string>
+    <string name="thit_nuong">" Grilled meat"</string>
+    <string name="hamburger">grilled meat</string>
     <string name="pizza">Pizza</string>
     <string name="ga_kfc">" KFC chicken"</string>
     <string name="price_10">10.000đ</string>
@@ -50,7 +52,7 @@
     <string name="order_code">Single code</string>
     <string name="user_name">Customer</string>
     <string name="password">Password</string>
-    <string name="confirm">" Confirm"</string>
+    <string name="confirm">Confirm</string>
     <string name="status">Status</string>
     <string name="update_day">Update day</string>
     <string name="day_creat">Day creat</string>
@@ -63,6 +65,7 @@
     <string name="address">Address</string>
     <string name="quantity_1">Quantity</string>
     <string name="save_information">Save information</string>
+    <string name="bap_cai">Cabbage</string>
 
 
 </resources>

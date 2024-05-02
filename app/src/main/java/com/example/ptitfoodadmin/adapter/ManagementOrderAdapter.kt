@@ -33,43 +33,29 @@ class ManagementOrderAdapter( private val orderList: List<ManagementOrderItem>,p
         val currentOrder = orderList[position]
         holder.name.text = currentOrder.name
         holder.id.text = currentOrder.id.toString()
-        if (currentOrder.status == 3) {
-            holder.btnTransport.isEnabled = false
-            holder.btnTransport.text = "Đang giao"
-        }
         if(currentOrder.status==0){
-           holder.btnSuccess.visibility=View.GONE;
+            holder.btnSuccess.visibility=View.GONE;
 
         }
+
         if (currentOrder.status == 3) {
-            holder.btnTransport.visibility=View.VISIBLE;
+
             holder.btnSuccess.visibility=View.VISIBLE;
             holder.btnCancel.visibility=View.VISIBLE;
-            holder.btnEnd.visibility=View.GONE;
-        }
-        if (currentOrder.status == 1) {
-            holder.btnTransport.visibility=View.GONE;
-            holder.btnSuccess.visibility=View.GONE;
-            holder.btnCancel.visibility=View.GONE;
-            holder.btnEnd.visibility=View.VISIBLE;
-        }
-
-        holder.btnTransport.setOnClickListener {
-            it.isEnabled = false // Disable the button
-            holder.btnTransport.text = "Đang giao"
-            updateStatusOrder(currentOrder.id, 3, holder) // Đang giao
         }
         holder.btnSuccess.setOnClickListener {
+            moveOrderToHistory(holder)
             updateStatusOrder(currentOrder.id, 1, holder) // Đã nhận
+
 
         }
         holder.btnCancel.setOnClickListener {
             updateStatusOrder(currentOrder.id, 2, holder) // Đã hủy
         }
-        holder.btnEnd.setOnClickListener {
-            moveOrderToHistory(holder)
-            updateStatusOrder(currentOrder.id, 4, holder) // Đã hoàn thành
 
+        holder.btnTransport.setOnClickListener {
+//            holder.btnTransport.visibility=View.GONE
+            updateStatusOrder(currentOrder.id, 3, holder) // Đang giao
         }
         holder.detail.setOnClickListener{
             val context = holder.itemView.context
@@ -85,41 +71,16 @@ class ManagementOrderAdapter( private val orderList: List<ManagementOrderItem>,p
             override fun onDataChange(snapshot: DataSnapshot) {
                 for (userSnapshot in snapshot.children) {
                     for (orderSnapshot in userSnapshot.children) {
-                        if(orderSnapshot.key==holder.id.text.toString()){
-                            val orderItem = orderSnapshot.getValue(OrderItem::class.java)
-                            if (orderItem != null) {
-                                val orderDetailList = mutableListOf<FoodItem>()
-                                for (foodItemSnapshot in orderSnapshot.child("orderDetail").children) {
-                                    val foodItem = foodItemSnapshot.getValue(FoodItem::class.java)
-                                    if (foodItem != null) {
-                                        val toppingList = mutableListOf<ToppingItem>()
-                                        for (toppingItemSnapshot in foodItemSnapshot.child("foodTopping").children) {
-                                            val toppingItem = toppingItemSnapshot.getValue(ToppingItem::class.java)
-                                            if (toppingItem != null) {
-                                                toppingList.add(toppingItem)
-                                            }
-                                        }
-                                        foodItem.foodTopping = toppingList
-                                        orderDetailList.add(foodItem)
-                                    }
+                        if (orderSnapshot.key == holder.id.text.toString()) {
+                            val order = orderSnapshot.getValue(OrderItem::class.java)
+                            val historyRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("OrderHistory")
+                            historyRef.child(userSnapshot.key!!).child(holder.id.text.toString()).setValue(order)
+                                .addOnSuccessListener {
+                                    dataUpdateListener.onDataUpdated()
                                 }
-                                orderItem.orderDetail = orderDetailList
-                            }
-
-                            val userId= orderItem?.userId
-                            val userCode = orderItem?.orderCode
-                            val userRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("OrderHistory").child(userId.toString())
-                            if (userCode != null) {
-                                userRef.child(userCode).setValue(orderItem)
-                                    .addOnSuccessListener {
-                                        Log.d("AddOrder", "Order added successfully to userRef")
-                                        holder.btnEnd.visibility = View.GONE // Make the button disappear
-                                    }
-                                    .addOnFailureListener {
-                                        Log.e("AddOrder", "Failed to add order to userRef", it)
-                                    }
-                            }
-                            dataUpdateListener.onDataUpdated()
+                                .addOnFailureListener {
+                                    Log.e("MoveToHistory", "Move to history failed", it)
+                                }
                             break
                         }
                     }
@@ -127,11 +88,10 @@ class ManagementOrderAdapter( private val orderList: List<ManagementOrderItem>,p
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.e("UpdateStatus", "Update status failed", error.toException())
+                Log.e("MoveToHistory", "Move to history failed", error.toException())
             }
         })
     }
-
     private fun updateStatusOrder(id: String, newStatus: Int, holder: OrderViewHolder) {
         val orderRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("Orders")
         orderRef.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -146,6 +106,10 @@ class ManagementOrderAdapter( private val orderList: List<ManagementOrderItem>,p
                             updates["updatedTime"] = formattedDate
                             orderSnapshot.ref.updateChildren(updates)
                                 .addOnSuccessListener {
+                                    // If newStatus is 1, move the order to OrderHistory
+                                    if (newStatus == 1) {
+                                        moveOrderToHistory(holder)
+                                    }
                                     dataUpdateListener.onDataUpdated()
                                 }
                                 .addOnFailureListener {
@@ -174,6 +138,5 @@ class ManagementOrderAdapter( private val orderList: List<ManagementOrderItem>,p
         val btnSuccess: Button = itemView.findViewById(R.id.btn_accpept)
         val btnCancel: Button = itemView.findViewById(R.id.btn_cancel)
         val detail: TextView =itemView.findViewById(R.id.viewDetail)
-        val  btnEnd :Button =itemView.findViewById(R.id.btn_end)
     }
 }

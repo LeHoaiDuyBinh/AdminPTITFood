@@ -59,10 +59,7 @@ class OrderActivity : AppCompatActivity() {
                                 }
                             }
                             orderItem.orderDetail = orderDetailList
-                            // Hien thi order theo trang thai orderStatus = 0 (Dang xu ly)
-//                            if (orderItem.orderStatus == 0) {
-//                                orderList.add(orderItem)
-//                            }
+
                             orderList.add(orderItem)
                         }
                         // Hien thi don moi nhat len dau

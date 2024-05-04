@@ -66,6 +66,8 @@
     <string name="quantity_1">Quantity</string>
     <string name="save_information">Save information</string>
     <string name="bap_cai">Cabbage</string>
+    <string name="promotion">Promotion</string>
+    <string name="promotion_code">Promotion code</string>
 
 
 </resources>

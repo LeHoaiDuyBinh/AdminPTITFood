@@ -12,6 +12,7 @@
         android:layout_height="40dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
+        android:background="@android:color/transparent"
         android:src="@drawable/losed_menu" />
 
     <TextView

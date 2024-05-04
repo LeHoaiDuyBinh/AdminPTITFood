@@ -6,5 +6,6 @@ data class AllMenu(
     val foodDescription :String? = null,
     val foodImage :String? = null,
     val foodTopping :MutableList<FoodTopping>? = null,
+    val foodPromotion: String? = null
 )
 

@@ -6,17 +6,14 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.ptitfoodadmin.adapter.MenuItemAdapter
 import com.example.ptitfoodadmin.databinding.ActivityAddMenuBinding
 import com.example.ptitfoodadmin.model.AllMenu
 import com.example.ptitfoodadmin.model.FoodTopping
@@ -24,7 +21,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.GenericTypeIndicator
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.Dispatchers
@@ -41,7 +37,8 @@ class AddMenuActivity : AppCompatActivity(), AddFoddItemMenuAdapter.OnIngredient
     private lateinit var foodPrice: String
     private lateinit var foodDescription: String
     private var foodIngredient: String? = null
-//    private var foodTopping: MutableList<FoodTopping>? = null
+    private lateinit var foodPromotion: String
+    //    private var foodTopping: MutableList<FoodTopping>? = null
     private lateinit var foodTopping: MutableList<FoodTopping>
 
     private var foodImageUri: Uri? = null
@@ -65,6 +62,7 @@ class AddMenuActivity : AppCompatActivity(), AddFoddItemMenuAdapter.OnIngredient
         val foodNameEdt = findViewById<EditText>(R.id.foodName)
         val foodPriceEdt = findViewById<EditText>(R.id.foodPrice)
         val foodDescriptionEdt = findViewById<EditText>(R.id.decription)
+        val foodPromotionEdt = findViewById<EditText>(R.id.promotion)
 //        val foodToppingCb = findViewById<RecyclerView>(R.id.recyclerView)
 
         val foodList = listOf(
@@ -83,15 +81,14 @@ class AddMenuActivity : AppCompatActivity(), AddFoddItemMenuAdapter.OnIngredient
 
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance()
-
         foodTopping = mutableListOf()
-
         adapter.setOnIngredientCheckedChangeListener(this)
 
         binding.AddItemButton.setOnClickListener {
             foodName = binding.foodName.text.toString().trim()
             foodPrice = binding.foodPrice.text.toString().trim()
             foodDescription = binding.decription.text.toString().trim()
+            foodPromotion = binding.promotion.text.toString().trim()
             val splitTopping = foodIngredient?.split(", ")?.map { it.trim() }
             if (splitTopping != null) {
                 for (item in splitTopping) {
@@ -105,7 +102,7 @@ class AddMenuActivity : AppCompatActivity(), AddFoddItemMenuAdapter.OnIngredient
                 }
             }
             Log.d("Topping", foodTopping.toString())
-            if (!(foodName.isBlank() || foodPrice.isBlank() || foodDescription.isBlank())) {
+            if (!(foodName.isBlank() || foodPrice.isBlank() || foodDescription.isBlank() || foodPromotion.isBlank())) {
                 uploadData()
                 Toast.makeText(this, "Thêm món ăn thành công!", Toast.LENGTH_SHORT).show()
                 finish()
@@ -135,6 +132,7 @@ class AddMenuActivity : AppCompatActivity(), AddFoddItemMenuAdapter.OnIngredient
                     val menuItemToEdit = snapshot.getValue(AllMenu::class.java)
                     foodNameEdt.setText(menuItemToEdit?.foodName)
                     foodPriceEdt.setText(menuItemToEdit?.foodPrice)
+                    foodPromotionEdt.setText(menuItemToEdit?.foodPromotion)
                     val imageUri = Uri.parse(menuItemToEdit?.foodImage)
                     Glide.with(this@AddMenuActivity).load(imageUri).into(selectedImage)
                     foodDescriptionEdt.setText(menuItemToEdit?.foodDescription)
@@ -151,13 +149,14 @@ class AddMenuActivity : AppCompatActivity(), AddFoddItemMenuAdapter.OnIngredient
                         foodName = binding.foodName.text.toString().trim()
                         foodPrice = binding.foodPrice.text.toString().trim()
                         foodDescription = binding.decription.text.toString().trim()
+                        foodPromotion = binding.promotion.text.toString().trim()
                         val splitTopping = foodIngredient?.split(", ")?.map { it.trim() }
                         if (splitTopping != null) {
 //                            foodTopping?.clear()
                             val foodRef = FirebaseDatabase.getInstance().getReference("Menu").child(selectedMenuKey!!).child("foodTopping")
                             foodRef.removeValue().addOnSuccessListener {
                                 Log.d("TAG", "Xóa foodTopping thành công!")
-                                }
+                            }
                                 .addOnFailureListener {
                                     Log.e("TAG", "Xóa foodTopping thất bại!")
                                 }
@@ -179,7 +178,7 @@ class AddMenuActivity : AppCompatActivity(), AddFoddItemMenuAdapter.OnIngredient
                         }
                         Log.d("Topping", foodTopping.toString())
 
-                        if (!(foodName.isBlank() || foodPrice.isBlank() || foodDescription.isBlank())) {
+                        if (!(foodName.isBlank() || foodPrice.isBlank() || foodDescription.isBlank()||foodPromotion.isBlank())) {
                             // Tìm đến nút dữ liệu cần cập nhật
                             val menuToUpdateRef =
                                 database.getReference("Menu").child(selectedMenuKey!!)
@@ -201,6 +200,7 @@ class AddMenuActivity : AppCompatActivity(), AddFoddItemMenuAdapter.OnIngredient
                                                     foodPrice = foodPrice,
                                                     foodDescription = foodDescription,
                                                     foodImage = imageUrl,
+                                                    foodPromotion = foodPromotion,
                                                     foodTopping = foodTopping ?: mutableListOf() // Sử dụng danh sách topping hiện tại
                                                 )
                                                 // Cập nhật dữ liệu
@@ -258,6 +258,7 @@ class AddMenuActivity : AppCompatActivity(), AddFoddItemMenuAdapter.OnIngredient
                                 foodPrice = foodPrice,
                                 foodDescription = foodDescription,
                                 foodImage = imageUrl,
+                                foodPromotion = foodPromotion,
                                 foodTopping = foodTopping
                                     ?: mutableListOf() // Sử dụng danh sách topping hiện tại
                             )
@@ -296,7 +297,7 @@ class AddMenuActivity : AppCompatActivity(), AddFoddItemMenuAdapter.OnIngredient
             }
         })
     }
-//Thêm dữ liệu lên firebase khi nhấn thêm
+    //Thêm dữ liệu lên firebase khi nhấn thêm
     private fun uploadData() {
         val menuRef = database.getReference("Menu")
         GlobalScope.launch(Dispatchers.Main) {
@@ -313,7 +314,8 @@ class AddMenuActivity : AppCompatActivity(), AddFoddItemMenuAdapter.OnIngredient
                         foodPrice = foodPrice,
                         foodDescription = foodDescription,
                         foodImage = downloadUrl.toString(),
-                        foodTopping = foodTopping
+                        foodTopping = foodTopping,
+                        foodPromotion = foodPromotion
                     )
                     menuRef.child(newIndexKey).setValue(newItem).addOnSuccessListener {
                         Toast.makeText(
@@ -338,9 +340,9 @@ class AddMenuActivity : AppCompatActivity(), AddFoddItemMenuAdapter.OnIngredient
     }
 
 
-    private fun createKeyFromName(name: String): String {
-        return name.filter { it.isLetterOrDigit() }.toLowerCase()
-    }
+//    private fun createKeyFromName(name: String): String {
+//        return name.filter { it.isLetterOrDigit() }.toLowerCase()
+//    }
 
     private suspend fun getIndex(): Int {
         val query = database.getReference("Menu")

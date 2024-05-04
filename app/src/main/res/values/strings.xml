@@ -65,4 +65,6 @@
     <string name="address">Địa chỉ</string>
     <string name="quantity_1">Số lượng: </string>
     <string name="save_information">Lưu thông tin</string>
+    <string name="promotion">Khuyến mãi</string>
+    <string name="promotion_code">Mã khuyến mãi</string>
 </resources>

@@ -1,6 +1,8 @@
 package com.example.ptitfoodadmin
 
+import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -9,6 +11,7 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.NumberPicker
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.ptitfoodadmin.adapter.RevenueAdapter
@@ -17,6 +20,11 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.itextpdf.kernel.pdf.PdfWriter
+import com.itextpdf.layout.Document
+import com.itextpdf.layout.element.Paragraph
+import com.itextpdf.layout.property.TextAlignment
+import java.io.FileOutputStream
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -32,6 +40,8 @@ class RevenueActivity : AppCompatActivity() {
     private var selectedMonth: Int = -1
     private var selectedYear: Int = -1
     private lateinit var allOrderItems: ArrayList<OrderItem>
+
+    private val CREATE_FILE_REQUEST_CODE = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,6 +74,11 @@ class RevenueActivity : AppCompatActivity() {
 
         // Load tất cả dữ liệu từ Firebase khi mở trang
         loadAllDataFromFirebase()
+
+        val btnExportPdf = findViewById<Button>(R.id.btnExportPdf)
+        btnExportPdf.setOnClickListener {
+            generatePdf()
+        }
     }
 
     private fun showMonthYearPickerDialog() {
@@ -168,5 +183,76 @@ class RevenueActivity : AppCompatActivity() {
             totalRevenue += order.totalPrice.replace(".", "").replace("đ", "").toFloatOrNull() ?: 0f
         }
         return totalRevenue
+    }
+
+    private fun generatePdf() {
+        val filteredData = if (selectedMonth != -1 && selectedYear != -1) {
+            filterDataByMonthAndYear(selectedMonth, selectedYear)
+        } else {
+            allOrderItems
+        }
+
+        if (filteredData.isNotEmpty()) {
+            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "application/pdf"
+                putExtra(Intent.EXTRA_TITLE, "revenue_report.pdf")
+            }
+            startActivityForResult(intent, CREATE_FILE_REQUEST_CODE)
+        } else {
+            Toast.makeText(this, "Không có dữ liệu để in", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun filterDataByMonthAndYear(month: Int, year: Int): List<OrderItem> {
+        return allOrderItems.filter { orderItem ->
+            val calendar = convertStringToCalendar(orderItem.updatedTime)
+            calendar.get(Calendar.MONTH) + 1 == month && calendar.get(Calendar.YEAR) == year
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == CREATE_FILE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            data?.data?.also { uri ->
+                createPdf(uri, if (selectedMonth != -1 && selectedYear != -1) filterDataByMonthAndYear(selectedMonth, selectedYear) else allOrderItems)
+            }
+        }
+    }
+
+    private fun createPdf(uri: Uri, orderItems: List<OrderItem>) {
+        contentResolver.openFileDescriptor(uri, "w")?.use { descriptor ->
+            FileOutputStream(descriptor.fileDescriptor).use { out ->
+                try {
+                    val pdfWriter = PdfWriter(out)
+                    val pdfDocument = com.itextpdf.kernel.pdf.PdfDocument(pdfWriter)
+                    val document = Document(pdfDocument)
+
+                    val title = Paragraph("Báo cáo doanh thu")
+                        .setTextAlignment(TextAlignment.CENTER)
+                        .setBold()
+                        .setFontSize(26f)
+                    document.add(title)
+
+                    for ((index, orderItem) in orderItems.withIndex()) {
+                        val detail = Paragraph("${index + 1}. ${orderItem.orderCode}: ${orderItem.totalPrice}")
+                            .setFontSize(16f)
+                            .setMarginLeft(20f)
+                            .setMarginTop(10f)
+                        document.add(detail)
+                    }
+
+                    val totalPrice = Paragraph("Total Revenue: ${DecimalFormat("#,###").format(calculateTotalRevenue(orderItems))} đ")
+                        .setTextAlignment(TextAlignment.RIGHT)
+                        .setFontSize(20f)
+                        .setBold()
+                    document.add(totalPrice)
+
+                    document.close()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
     }
 }

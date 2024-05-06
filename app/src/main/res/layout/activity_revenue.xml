@@ -12,7 +12,6 @@
         android:layout_height="40dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
-        android:background="@android:color/transparent"
         android:src="@drawable/losed_menu"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -130,10 +129,11 @@
         </TextView>
     </LinearLayout>
 
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewRevenue"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_width="381dp"
+        android:layout_height="389dp"
         app:layout_constraintStart_toStartOf="@+id/ll_revenue"
         app:layout_constraintTop_toBottomOf="@+id/ll_revenue" />
 
@@ -147,12 +147,25 @@
         android:textColor="@color/black"
         android:textSize="26sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/btnExportPdf"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/recyclerViewRevenue"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintTop_toBottomOf="@+id/recyclerViewRevenue" />
+
+    <Button
+        android:id="@+id/btnExportPdf"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/custom_btn_login"
+        android:text="@string/exportPDF"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.461"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvTotalRevenue" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
